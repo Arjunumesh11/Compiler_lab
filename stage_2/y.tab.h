@@ -74,7 +74,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 12 "stage2.y" /* yacc.c:1909  */
+#line 11 "stage2.y" /* yacc.c:1909  */
 
 	struct tnode *no;
 

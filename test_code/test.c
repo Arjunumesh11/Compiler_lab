@@ -1,9 +1,13 @@
 #include<stdio.h>
+int alo(char *a)
+{
+    return a-'a';
+}
 int main()
 {
     char *c;
     c=(char*)malloc(sizeof(char));
-    c[0]='k';
-    int a=c[0]-'a';
+    c='k';
+    int a=alo(c);
     printf("%d",a);
 }

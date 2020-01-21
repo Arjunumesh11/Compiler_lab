@@ -68,13 +68,12 @@
 	#include <stdio.h>
 	#include "exprtree.h"
 	#include "exprtree.c"
-	//#include"utli.h"
 	int yylex(void);
 	int r1;
 	FILE *target_file;
 
 
-#line 78 "y.tab.c" /* yacc.c:339  */
+#line 77 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -138,11 +137,11 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 12 "stage2.y" /* yacc.c:355  */
+#line 11 "stage2.y" /* yacc.c:355  */
 
 	struct tnode *no;
 
-#line 146 "y.tab.c" /* yacc.c:355  */
+#line 145 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -159,7 +158,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 163 "y.tab.c" /* yacc.c:358  */
+#line 162 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -457,8 +456,8 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    20,    20,    21,    23,    24,    27,    28,    29,    32,
-      34,    36,    38,    39,    40,    41,    42,    43,    44
+       0,    19,    19,    20,    22,    23,    26,    27,    28,    31,
+      33,    35,    37,    38,    39,    40,    41,    42,    43
 };
 #endif
 
@@ -1245,109 +1244,109 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 20 "stage2.y" /* yacc.c:1646  */
-    {evaluate((yyvsp[-1].no)); r1=codeGen((yyvsp[-1].no),target_file,0); exit(0);}
-#line 1251 "y.tab.c" /* yacc.c:1646  */
+#line 19 "stage2.y" /* yacc.c:1646  */
+    {/*evaluate($2);*/ r1=codeGen((yyvsp[-1].no),target_file,0); fprintf(target_file," MOV SP, 4123\n PUSH R1\n PUSH R0\n MOV R1, \"Exit\"\n PUSH R1\n MOV R1,-2\n PUSH R1\n MOV R0,[%d]\n PUSH R0\n PUSH R1\n PUSH R1\n CALL 0\n POP R0\n POP R1\n POP R1\n POP R1\n POP R1\n POP R0\n POP R1\n ",r1); exit(0);}
+#line 1250 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 21 "stage2.y" /* yacc.c:1646  */
+#line 20 "stage2.y" /* yacc.c:1646  */
     {exit(0);}
-#line 1257 "y.tab.c" /* yacc.c:1646  */
+#line 1256 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 23 "stage2.y" /* yacc.c:1646  */
-    {printf("Slist "); (yyval.no) = makeConnectorNode((yyvsp[-1].no),(yyvsp[0].no));}
-#line 1263 "y.tab.c" /* yacc.c:1646  */
+#line 22 "stage2.y" /* yacc.c:1646  */
+    {/*printf("Slist ");*/ (yyval.no) = makeConnectorNode((yyvsp[-1].no),(yyvsp[0].no));}
+#line 1262 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 24 "stage2.y" /* yacc.c:1646  */
-    {printf("Stmt "); (yyval.no) = (yyvsp[0].no);}
-#line 1269 "y.tab.c" /* yacc.c:1646  */
+#line 23 "stage2.y" /* yacc.c:1646  */
+    {/*printf("Stmt ");*/ (yyval.no) = (yyvsp[0].no);}
+#line 1268 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 27 "stage2.y" /* yacc.c:1646  */
-    {printf("i/p "); (yyval.no) = (yyvsp[0].no); }
-#line 1275 "y.tab.c" /* yacc.c:1646  */
+#line 26 "stage2.y" /* yacc.c:1646  */
+    {/*printf("i/p ");*/ (yyval.no) = (yyvsp[0].no); }
+#line 1274 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 28 "stage2.y" /* yacc.c:1646  */
-    {printf("o/p "); (yyval.no) = (yyvsp[0].no); }
-#line 1281 "y.tab.c" /* yacc.c:1646  */
+#line 27 "stage2.y" /* yacc.c:1646  */
+    {/*printf("o/p ");*/ (yyval.no) = (yyvsp[0].no); }
+#line 1280 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 29 "stage2.y" /* yacc.c:1646  */
-    {printf("asg "); (yyval.no) = (yyvsp[0].no); }
-#line 1287 "y.tab.c" /* yacc.c:1646  */
+#line 28 "stage2.y" /* yacc.c:1646  */
+    {/*printf("asg ");*/ (yyval.no) = (yyvsp[0].no); }
+#line 1286 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 32 "stage2.y" /* yacc.c:1646  */
+#line 31 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = makeReadNode((yyvsp[-1].no));}
-#line 1293 "y.tab.c" /* yacc.c:1646  */
+#line 1292 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 34 "stage2.y" /* yacc.c:1646  */
+#line 33 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = makeWriteNode((yyvsp[-1].no));}
-#line 1299 "y.tab.c" /* yacc.c:1646  */
+#line 1298 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 36 "stage2.y" /* yacc.c:1646  */
+#line 35 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = makeOperatorNode('=',(yyvsp[-2].no),(yyvsp[0].no));}
-#line 1305 "y.tab.c" /* yacc.c:1646  */
+#line 1304 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 38 "stage2.y" /* yacc.c:1646  */
+#line 37 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = makeOperatorNode('+',(yyvsp[-2].no),(yyvsp[0].no));}
-#line 1311 "y.tab.c" /* yacc.c:1646  */
+#line 1310 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 39 "stage2.y" /* yacc.c:1646  */
+#line 38 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = makeOperatorNode('-',(yyvsp[-2].no),(yyvsp[0].no));}
-#line 1317 "y.tab.c" /* yacc.c:1646  */
+#line 1316 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 40 "stage2.y" /* yacc.c:1646  */
+#line 39 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = makeOperatorNode('*',(yyvsp[-2].no),(yyvsp[0].no));}
-#line 1323 "y.tab.c" /* yacc.c:1646  */
+#line 1322 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 41 "stage2.y" /* yacc.c:1646  */
+#line 40 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = makeOperatorNode('/',(yyvsp[-2].no),(yyvsp[0].no));}
-#line 1329 "y.tab.c" /* yacc.c:1646  */
+#line 1328 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 42 "stage2.y" /* yacc.c:1646  */
+#line 41 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[-1].no);}
-#line 1335 "y.tab.c" /* yacc.c:1646  */
+#line 1334 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 43 "stage2.y" /* yacc.c:1646  */
+#line 42 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[0].no);}
-#line 1341 "y.tab.c" /* yacc.c:1646  */
+#line 1340 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 44 "stage2.y" /* yacc.c:1646  */
+#line 43 "stage2.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[0].no);}
-#line 1347 "y.tab.c" /* yacc.c:1646  */
+#line 1346 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1351 "y.tab.c" /* yacc.c:1646  */
+#line 1350 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1575,7 +1574,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 47 "stage2.y" /* yacc.c:1906  */
+#line 46 "stage2.y" /* yacc.c:1906  */
 
 
 yyerror(char const *s)
@@ -1586,6 +1585,8 @@ yyerror(char const *s)
 
 int main(void) {
 	target_file=fopen("ahc.txt","w");
+	fprintf(target_file, " %d\n %d\n %d\n %d\n %d\n %d\n %d\n %d\n",0,2056,0,0,0,0,0,0);
+	fprintf(target_file, " MOV SP, 4123\n"); 
 	//printf("check1");
 	yyparse();
 	return 0;

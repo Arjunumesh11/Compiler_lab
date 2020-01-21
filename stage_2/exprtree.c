@@ -12,16 +12,16 @@
 
 int allocatemem(char *var)
 {
-    return var[0]+4096-'a';
+    return var+4096-'a';
 }
 struct tnode* makeLeafNodeNUM(int n)
 {
-    printf("num ");
+    //printf("num ");
     struct tnode *temp;
     temp = (struct tnode*)malloc(sizeof(struct tnode));
     temp->op = NULL;
     temp->varname=NULL;
-    temp->nodetype=LeafNode;
+    temp->nodetype=NUMBER;
     temp->val = n;
     temp->type = NUMBER;
     temp->left = NULL;
@@ -31,15 +31,14 @@ struct tnode* makeLeafNodeNUM(int n)
 
 struct tnode* makeLeafNodeVAR(char var)
 {
-    printf("var ");
+   // printf("var ");
     struct tnode *temp;
     
     temp = (struct tnode*)malloc(sizeof(struct tnode));
     temp->varname = malloc(sizeof(char));
     temp->op = NULL;
     temp->varname=var;
-    temp->nodetype=LeafNode;
-    temp->type = VARIABLE;
+    temp->nodetype=VARIABLE;
     temp->val = NULL;
     temp->left = NULL;
     temp->right = NULL;
@@ -48,7 +47,7 @@ struct tnode* makeLeafNodeVAR(char var)
 
 struct tnode* makeOperatorNode(char c,struct tnode *l,struct tnode *r)
 {
-    printf("op ");
+    //printf("op ");
     struct tnode *temp;
     temp = (struct tnode*)malloc(sizeof(struct tnode));
     temp->op = malloc(sizeof(char));
@@ -62,7 +61,7 @@ struct tnode* makeOperatorNode(char c,struct tnode *l,struct tnode *r)
 
 struct tnode* makeReadNode(struct tnode* l)
 {
-    printf("read ");
+   // printf("read ");
     struct tnode *temp;
     temp = (struct tnode*)malloc(sizeof(struct tnode));
     temp->op = NULL;
@@ -77,7 +76,7 @@ struct tnode* makeReadNode(struct tnode* l)
 
 struct tnode* makeWriteNode(struct tnode* l)
 {
-    printf("write ");
+    //printf("write ");
     struct tnode *temp;
     temp = (struct tnode*)malloc(sizeof(struct tnode));
     temp->op = NULL;
@@ -93,7 +92,7 @@ struct tnode* makeWriteNode(struct tnode* l)
 
 struct tnode* makeConnectorNode(struct tnode *l,struct tnode *r)
 {
-    printf("conn ");
+  //  printf("conn ");
     struct tnode *temp;
     temp = (struct tnode*)malloc(sizeof(struct tnode));
     temp->op = NULL;
@@ -219,23 +218,31 @@ int codeGen(struct tnode *t,FILE *targetfile,int option) //option 1 = dereferenc
             
         }
   }
-  if(t->nodetype==READ0)
-  {
-     fprintf(targetfile," READ \n");
-  }
   if(t->nodetype==WRITE0)
   {
-      fprintf(targetfile," WRITE \n");
+     r1=codeGen(t->left,targetfile,0);
+    if(t->left->nodetype==VARIABLE)
+    {
+        fprintf(targetfile," PUSH R1\n PUSH R0\n MOV R1, \"Write\"\n PUSH R1\n MOV R1, -2\n PUSH R1\n MOV R0,[%d]\n PUSH R0\n PUSH R1\n PUSH R1\n CALL 0\n POP R0\n POP R1\n POP R1\n POP R1\n POP R1\n POP R0\n POP R1\n ",r1);
+    }
+    if((t->left->nodetype==NUMBER)||(t->left->nodetype==OPERATOR))
+    {
+        fprintf(targetfile," MOV R0,R%d\n",r1);
+        fprintf(targetfile," PUSH R1\n PUSH R0\n MOV R1, \"Write\"\n PUSH R1\n MOV R1, -2\n PUSH R1\n PUSH R0\n PUSH R1\n PUSH R1\n CALL 0\n POP R0\n POP R1\n POP R1\n POP R1\n POP R1\n POP R0\n POP R1\n ",r1);
+    }
   }
-  if(t->nodetype==LeafNode)
+  if(t->nodetype==READ0)
   {
-      if(t->type==NUMBER)
+      r1=codeGen(t->left,targetfile,0);
+      fprintf(targetfile," PUSH R1\n PUSH R0\n MOV R1, \"Read\"\n PUSH R1\n MOV R1,-1\n PUSH R1\n MOV R0,%d\n PUSH R0\n PUSH R1\n PUSH R1\n CALL 0\n POP R0\n POP R1\n POP R1\n POP R1\n POP R1\n POP R0\n POP R1\n ",r1);
+  }
+  if(t->nodetype==NUMBER)
       {
         r1=getReg();
         fprintf(targetfile," MOV R%d,%d\n",r1,t->val);
         return r1;
       }
-      if(t->type==VARIABLE)
+  if(t->nodetype==VARIABLE)
       {
           if(option==1)
         {r1=allocatemem(t->varname);
@@ -244,9 +251,7 @@ int codeGen(struct tnode *t,FILE *targetfile,int option) //option 1 = dereferenc
         return r2;}
         if(option==0)
         {r1=allocatemem(t->varname);
-        r2=getReg();
-        return r2;}
+        return r1;}
       }
-  }
   return;
 }

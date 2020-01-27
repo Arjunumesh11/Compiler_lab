@@ -1,13 +1,18 @@
 #include<stdio.h>
-int alo(char *a)
-{
-    return a-'a';
-}
+#include<string.h>
+struct label{
+    int address;
+    int name[5];
+};
 int main()
 {
-    char *c;
-    c=(char*)malloc(sizeof(char));
-    c='k';
-    int a=alo(c);
-    printf("%d",a);
+    int n;
+    char name[5];
+    char n1[5];
+    sprintf(name,"l%d",3);
+    printf("%s",name);
+    strcpy(n1,name);
+   // strcpy(name,NULL);
+    printf("%s",n1);
+
 }

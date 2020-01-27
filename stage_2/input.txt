@@ -1,0 +1,5 @@
+begin
+read(a)
+c=pow(a)
+write(c)
+end

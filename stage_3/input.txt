@@ -1,0 +1,10 @@
+begin
+read(a)
+if(a>1)
+then
+a=a+4
+write(a)
+else
+write(a)
+endif
+end

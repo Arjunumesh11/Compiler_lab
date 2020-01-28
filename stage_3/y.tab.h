@@ -47,66 +47,68 @@ extern int yydebug;
   {
     READ = 258,
     WRITE = 259,
-    VAR = 260,
-    PLUS = 261,
-    MINUS = 262,
-    MUL = 263,
-    DIV = 264,
-    BEGIN0 = 265,
-    END = 266,
-    NUM = 267,
-    EQUAL = 268,
-    GRT = 269,
-    LST = 270,
-    GRE = 271,
-    LSE = 272,
-    NEQUAL = 273,
-    EEQUAL = 274,
-    IF = 275,
-    THEN = 276,
-    ENDIF = 277,
-    ENDWHILE = 278,
-    DO = 279,
-    ELSE = 280,
-    WHILE = 281
+    POW = 260,
+    VAR = 261,
+    PLUS = 262,
+    MINUS = 263,
+    MUL = 264,
+    DIV = 265,
+    BEGIN0 = 266,
+    END = 267,
+    NUM = 268,
+    EQUAL = 269,
+    GRT = 270,
+    LST = 271,
+    GRE = 272,
+    LSE = 273,
+    NEQUAL = 274,
+    EEQUAL = 275,
+    IF = 276,
+    THEN = 277,
+    ENDIF = 278,
+    ENDWHILE = 279,
+    DO = 280,
+    ELSE = 281,
+    WHILE = 282
   };
 #endif
 /* Tokens.  */
 #define READ 258
 #define WRITE 259
-#define VAR 260
-#define PLUS 261
-#define MINUS 262
-#define MUL 263
-#define DIV 264
-#define BEGIN0 265
-#define END 266
-#define NUM 267
-#define EQUAL 268
-#define GRT 269
-#define LST 270
-#define GRE 271
-#define LSE 272
-#define NEQUAL 273
-#define EEQUAL 274
-#define IF 275
-#define THEN 276
-#define ENDIF 277
-#define ENDWHILE 278
-#define DO 279
-#define ELSE 280
-#define WHILE 281
+#define POW 260
+#define VAR 261
+#define PLUS 262
+#define MINUS 263
+#define MUL 264
+#define DIV 265
+#define BEGIN0 266
+#define END 267
+#define NUM 268
+#define EQUAL 269
+#define GRT 270
+#define LST 271
+#define GRE 272
+#define LSE 273
+#define NEQUAL 274
+#define EEQUAL 275
+#define IF 276
+#define THEN 277
+#define ENDIF 278
+#define ENDWHILE 279
+#define DO 280
+#define ELSE 281
+#define WHILE 282
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 11 "stage3.y" /* yacc.c:1909  */
+#line 12 "stage2.y" /* yacc.c:1909  */
 
 	struct tnode *no;
 
-#line 110 "y.tab.h" /* yacc.c:1909  */
+#line 112 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

@@ -223,7 +223,7 @@ int codeGen(struct tnode *t,FILE *targetfile,int option) //option 1 = dereferenc
         freeReg();
         pos=pos+16;
     }
-    if((t->left->nodetype==NUMBER)||(t->left->nodetype==OPERATOR)||(t->left->nodetype==STRI))
+    if((t->left->nodetype==NUMBER)||(t->left->nodetype==OPERATOR))
     {
         fprintf(targetfile," MOV R0,R%d\n",r1);
         fprintf(targetfile," PUSH R1\n");
@@ -303,13 +303,6 @@ int codeGen(struct tnode *t,FILE *targetfile,int option) //option 1 = dereferenc
       {
         r1=getReg();
         fprintf(targetfile," MOV R%d,%d\n",r1,t->val);
-        pos++;
-        return r1;
-      }
-  if(t->nodetype==STRI)
-      {
-        r1=getReg();
-        fprintf(targetfile," MOV R%d,%s\n",r1,t->varname);
         pos++;
         return r1;
       }

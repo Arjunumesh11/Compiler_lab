@@ -1,0 +1,14 @@
+begin
+decl
+int k,n,fib[100],i
+enddecl
+i=3
+read(n)
+fib[1]=1
+fib[2]=1
+while(i<n+1) do
+fib[i]=fib[i-1]+fib[i-2]
+i=i+1
+endwhile
+write(fib[n])
+end

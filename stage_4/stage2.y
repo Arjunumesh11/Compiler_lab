@@ -48,24 +48,7 @@ Declarations : DECL DeclList ENDDECL {
 									} 
 			 | DECL ENDDECL
 			 ;
-DeclList : DeclList Decl
-						{
-									temp_table=G_TABLE;
-									if(G_TABLE==NULL)
-									{
-										G_TABLE=G_TABLE_temp;
-									}
-									else
-									{
-										while(temp_table->prev)
-										{
-											temp_table=temp_table->prev;
-										}
-										temp_table->prev=G_TABLE_temp;
-									}
-									G_TABLE_temp=NULL;
-						}
-		  |Decl	{
+DeclList : DeclList Decl|Decl	{
 									temp_table=G_TABLE;
 									if(G_TABLE==NULL)
 									{
@@ -82,7 +65,7 @@ DeclList : DeclList Decl
 									G_TABLE_temp=NULL;
 								}
 		 ;
-Decl : Type Varlist	';'{
+Decl : Type Varlist	{
 						if(type_flag==0)
 						{
 							temp_table=G_TABLE_temp;
@@ -100,7 +83,6 @@ Decl : Type Varlist	';'{
 								temp_table=temp_table->prev;
 								}	
 						}
-										
 					}
 	 ;
 Type : INT	{type_flag=0;} 
@@ -140,48 +122,37 @@ Varlist : Varlist','VAR
 						}
 	    ;
 
-InputStmt : READ '(' VAR ')' ';' 	  	 			{$$ = CreateTree(0,0,NULL,READ0,NULL,$3,NULL,NULL);}
-		  | READ '(' VAR '[' expr ']' ')' ';'		{$$ = CreateTree(0,0,NULL,READ0,NULL,CreateTree(0,0,$3->varname,VARIABLE,NULL,$5,NULL,NULL),NULL,NULL);}
+InputStmt : READ '(' expr ')'  	 			 {$$ = CreateTree(0,0,NULL,READ0,NULL,$3,NULL,NULL);}
 		  ;
 
-OutputStmt : WRITE '(' expr ')' ';' 			 {$$ = CreateTree(0,0,NULL,WRITE0,NULL,$3,NULL,NULL);}
+OutputStmt : WRITE '(' expr ')'  			 {$$ = CreateTree(0,0,NULL,WRITE0,NULL,$3,NULL,NULL);}
 		   ;
 
-AsgStmt : VAR EQUAL expr ';'	     			 {$$ = CreateTree(0,0,NULL,OPERATOR,"=",$1,$3,NULL);}
-      	| VAR '[' expr ']' EQUAL expr ';' 		 {if($3->type != INTE) {printf("type mismatch");exit(0);}$$ = CreateTree(0,0,NULL,OPERATOR,"=",CreateTree(0,0,$1->varname,VARIABLE,NULL,$3,NULL,NULL),$6,NULL);}
+AsgStmt : VAR EQUAL expr 	     			 {$$ = CreateTree(0,0,NULL,OPERATOR,"=",$1,$3,NULL);}
+      	| VAR '[' expr ']' EQUAL expr 		 {$$ = CreateTree(0,0,NULL,OPERATOR,"=",CreateTree(0,0,$1->varname,VARIABLE,NULL,$3,NULL,NULL),$6,NULL);}
 		;
 
-Ifstmt : IF '(' expr ')' THEN Slist ELSE Slist ENDIF ';' {if($3->type != BOLE) {printf("type mismatch");exit(0);}$$ =  CreateTree(0,0,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,$8,NULL),NULL);}
-	   | IF '(' expr ')' THEN Slist ENDIF ';'			 {if($3->type != BOLE) {printf("type mismatch");exit(0);}$$ =  CreateTree(0,0,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,NULL,NULL),NULL);}
+Ifstmt : IF '(' expr ')' THEN Slist ELSE Slist ENDIF {$$ =  CreateTree(0,0,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,$8,NULL),NULL);}
+	   | IF '(' expr ')' THEN Slist ENDIF 			 {$$ =  CreateTree(0,0,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,NULL,NULL),NULL);}
 	   ;
 
-Whilestmt : WHILE '(' expr ')' DO Slist ENDWHILE ';' {if($3->type != BOLE) {printf("type mismatch");exit(0);}$$ =  CreateTree(0,0,NULL,WHILEST,NULL,$3,$6,NULL);}
+Whilestmt : WHILE '(' expr ')' DO Slist ENDWHILE {$$ =  CreateTree(0,0,NULL,WHILEST,NULL,$3,$6,NULL);}
 		  ;
 
-expr : expr PLUS expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,INTE,NULL,OPERATOR,"+",$1,$3,NULL);}
-	 | expr MINUS expr  	{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,INTE,NULL,OPERATOR,"-",$1,$3,NULL);}
-	 | expr MUL expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,INTE,NULL,OPERATOR,"*",$1,$3,NULL);}
-	 | expr DIV expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,INTE,NULL,OPERATOR,"/",$1,$3,NULL);}
+expr : expr PLUS expr		{$$ = CreateTree(0,INTE,NULL,OPERATOR,"+",$1,$3,NULL);}
+	 | expr MINUS expr  	{$$ = CreateTree(0,INTE,NULL,OPERATOR,"-",$1,$3,NULL);}
+	 | expr MUL expr		{$$ = CreateTree(0,INTE,NULL,OPERATOR,"*",$1,$3,NULL);}
+	 | expr DIV expr		{$$ = CreateTree(0,INTE,NULL,OPERATOR,"/",$1,$3,NULL);}
 	 
-	 | expr LST expr        {if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-	 						$$ = CreateTree(0,BOLE,NULL,OPERATOR,"<",$1,$3,NULL);}
-	 | expr GRT expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,">",$1,$3,NULL);}
-	 | expr GRE expr        {if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,">=",$1,$3,NULL);}
-	 | expr LSE expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,"<=",$1,$3,NULL);}
-	 | expr EEQUAL expr     {if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,"==",$1,$3,NULL);}
-	 | expr NEQUAL expr     {if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,"!=",$1,$3,NULL);}
+	 | expr LST expr        {$$ = CreateTree(0,BOLE,NULL,OPERATOR,"<",$1,$3,NULL);}
+	 | expr GRT expr		{$$ = CreateTree(0,BOLE,NULL,OPERATOR,">",$1,$3,NULL);}
+	 | expr GRE expr        {$$ = CreateTree(0,BOLE,NULL,OPERATOR,">=",$1,$3,NULL);}
+	 | expr LSE expr		{$$ = CreateTree(0,BOLE,NULL,OPERATOR,"<=",$1,$3,NULL);}
+	 | expr EEQUAL expr     {$$ = CreateTree(0,BOLE,NULL,OPERATOR,"==",$1,$3,NULL);}
+	 | expr NEQUAL expr     {$$ = CreateTree(0,BOLE,NULL,OPERATOR,"!=",$1,$3,NULL);}
 	 
 	 | '(' expr ')'			{$$ = $2;}
-	 | VAR '[' expr ']'		{if($3->type != INTE) {printf("type mismatch");exit(0);}$$ = CreateTree(0,INTE,$1->varname,VARIABLE,NULL,$3,NULL,NULL);}
+	 | VAR '[' expr ']'		{$$ = CreateTree(0,0,$1->varname,VARIABLE,NULL,$3,NULL,NULL);}
 	 | NUM					{$$ = $1;}
 	 | VAR 					{$$ = $1;}
 	 | POW '(' expr ')'		{$$=CreateTree(0,0,NULL,POWER,NULL,$3,NULL,NULL);}

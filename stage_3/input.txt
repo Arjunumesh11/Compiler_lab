@@ -1,10 +1,7 @@
 begin
-read(a)
-if(a>1)
-then
-a=a+4
-write(a)
-else
-write(a)
-endif
+decl
+    int a[10],b,c;
+    str mesg; 
+enddecl
+    write("asdf");
 end

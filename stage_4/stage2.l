@@ -10,7 +10,7 @@
 
 %%
 
-[0-9]+	{number = atoi(yytext); yylval.no = CreateTree(number,INTE,NULL,NUMBER,NULL,NULL,NULL,NULL); return NUM;}
+[0-9]+	{number = atoi(yytext); yylval.no = CreateTree(number,0,NULL,NUMBER,NULL,NULL,NULL,NULL); return NUM;}
 "begin" {return BEGIN0;}
 "end" {return END;}
 "pow" {return POW;}
@@ -38,16 +38,16 @@
 "=" {return EQUAL;}
 
 "==" {return EEQUAL;}
-">=" {return GRE;}
-"<=" {return LSE;}
+">=" {return LSE;}
+"<=" {return GRE;}
 ">"  {return GRT;}
 "<"  {return LST;}
 "!=" {return NEQUAL;}
-[A-Za-z][0-9A-Za-z]* 	{varname=strdup(yytext);    yylval.no = CreateTree(0,INTE,varname,VARIABLE,NULL,NULL,NULL,NULL); return VAR;}
-[\"][0-9A-Za-z]+[\"] 	{varname=strdup(yytext);    yylval.no = CreateTree(0,STRI,varname,STRI,NULL,NULL,NULL,NULL); return NUM;}
+
+[0-9A-Za-z]+ 	{varname=strdup(yytext);    yylval.no = CreateTree(0,0,varname,VARIABLE,NULL,NULL,NULL,NULL); return VAR;}
 [\n] 	{}
 [ \t]	{}
-[();]	{return yytext[0];}
+[()]	{return yytext[0];}
 "["    {return yytext[0];}
 "]"    {return yytext[0];}
 

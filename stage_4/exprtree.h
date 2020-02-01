@@ -17,7 +17,6 @@ int reg[20];
 #define BREAKST 10
 #define CONTINUEST 11
 #define DECLARATION 12
-#define STRI 13
 
 #define No_labels 100
 

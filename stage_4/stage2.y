@@ -168,8 +168,13 @@ int yyerror(char const *s)
 }
 
 
-int main(void) {
-	yyin=fopen("input.txt","r");
+int main(int argc,char** argv) {
+	if(argc<2)
+	{
+		printf("usage expl <filename>");
+		exit(0);
+	}
+	yyin=fopen(argv[1],"r");
 	target_file=fopen("output.txt","w");
 	label_file=fopen("label.dat","w");
 	fprintf(target_file, " %d\n %d\n %d\n %d\n %d\n %d\n %d\n %d\n BRKP\n",0,2056,0,0,0,0,0,0);

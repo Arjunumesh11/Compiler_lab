@@ -73,6 +73,8 @@ int getReg()
                 return i;
             }
         }
+        printf("Run time error : NO REG AVAILABLE");
+        return -1;
 }
 int getlabel()
 {

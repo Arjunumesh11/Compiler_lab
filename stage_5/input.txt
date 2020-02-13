@@ -1,0 +1,27 @@
+decl
+    int fun(int x);
+enddecl
+int fun(int x)
+{
+    decl
+    int a;
+    enddecl
+    begin
+        if(x==1) then
+        return 1;
+        endif;
+        write(x);
+        x=x-1;
+        fun(x);
+        return 1;
+    end    
+}
+int main(){
+    decl
+    int a,b;
+    enddecl
+    begin
+        a=fun(10);
+        return 1;
+    end
+}

@@ -229,7 +229,8 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             fprintf(targetfile, " MOV [R%d],R%d\n", r1, r2);
             pos++;
             freeReg(REG_COUNTER->Reg);
-            return (min(r1, r2));
+            freeReg(REG_COUNTER->Reg);
+            return 0;
         }
         if (strcmp(t->op, "<") == 0)
         {
@@ -426,6 +427,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         fprintf(targetfile, " POP R1\n");
         pos++;
         freeReg(REG_COUNTER->Reg);
+        freeReg(REG_COUNTER->Reg);
     }
     if (t->nodetype == NUMBER)
     {
@@ -552,7 +554,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         fprintf(targetfile, "L%d:\n", l_if);
         if (t->right->right)
         {
-
+            freeReg(REG_COUNTER->Reg);
             r2 = codeGen(t->right->right, targetfile, 1);
         }
         LabelTable[l_end].address = pos * 2 + start_adress; //JMP L_WHILE
@@ -560,6 +562,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         strcpy(LabelTable[l_end].name, name);
         fwrite(&LabelTable[l_end], sizeof(struct labeltable), 1, label_file);
         fprintf(targetfile, "L%d:\n", l_end);
+        freeReg(REG_COUNTER->Reg);
     }
     if (t->nodetype == WHILEST)
     {

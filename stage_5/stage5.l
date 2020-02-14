@@ -40,8 +40,8 @@
 "=" {return EQUAL;}
 
 "==" {return EEQUAL;}
-">=" {return LSE;}
-"<=" {return GRE;}
+"<=" {return LSE;}
+">=" {return GRE;}
 ">"  {return GRT;}
 "<"  {return LST;}
 "!=" {return NEQUAL;}

@@ -1,27 +1,38 @@
+
+
 decl
-    int fun(int x);
+  int fact(int n);
 enddecl
-int fun(int x)
+
+int fact(int n)
 {
-    decl
-    int a;
-    enddecl
-    begin
-        if(x==1) then
-        return 1;
-        endif;
-        write(x);
-        x=x-1;
-        fun(x);
-        return 1;
-    end    
+  decl
+    int f;
+  enddecl
+
+  begin
+    if(n<=1) then
+      f=1;
+    else
+      f=fact(n-1);
+      f=n*f;
+    endif;
+
+    return f;
+  end
 }
-int main(){
-    decl
-    int a,b;
-    enddecl
-    begin
-        a=fun(10);
-        return 1;
-    end
-}
+
+int main()
+{
+  decl
+    int res,a;
+  enddecl
+
+  begin
+    read(a);
+    res = fact(a);
+    write(res);
+    return 0;
+  end  
+}  
+

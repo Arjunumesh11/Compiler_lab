@@ -348,11 +348,9 @@ expr : expr PLUS expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("ty
 arguments : argument {$$=$1;}
 		  | {$$=NULL;}
 		  ;
-argument 	 : argument ',' VAR {$$=CreateTree(0,0,NULL,CONNECTOR,NULL,$1,CreateTree(0,0,NULL,ARGUMENT,NULL,$3,NULL,NULL),NULL);}
-			 | argument ',' NUM	{$$=CreateTree(0,0,NULL,CONNECTOR,NULL,$1,CreateTree(0,0,NULL,ARGUMENT,NULL,$3,NULL,NULL),NULL);}
-			 | VAR	{$$=CreateTree(0,0,NULL,ARGUMENT,NULL,$1,NULL,NULL);}
-			 | NUM	{$$=CreateTree(0,0,NULL,ARGUMENT,NULL,$1,NULL,NULL);}
-
+argument 	 : argument ',' expr {$$=CreateTree(0,0,NULL,CONNECTOR,NULL,$1,CreateTree(0,0,NULL,ARGUMENT,NULL,$3,NULL,NULL),NULL);}
+			 | expr	{$$=CreateTree(0,0,NULL,ARGUMENT,NULL,$1,NULL,NULL);}
+			 ;
 %%
 
 int yyerror(char const *s)

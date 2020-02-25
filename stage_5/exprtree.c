@@ -1,13 +1,15 @@
-#pragma once
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "exprtree.h"
+
 int labels = 1;
 int pos = 0;            //position of commands
 int memlocation = 4097; //current memory location
 int localmem = 1;
 int paramem = -3;
+int reg_temp[20];
+int junk;
 
 struct labeltable LabelTable[No_labels];
 struct loop_counter *LOOP_COUNTER_HEAD = NULL, *LOOP_COUNTER_TEMP = NULL;
@@ -133,7 +135,6 @@ void freeReg(int *Reg)
 }
 void pushReg(int *Reg, FILE *targetfile)
 {
-
     for (int i = 0; i < 20; i++)
     {
         if (Reg[i])
@@ -141,8 +142,8 @@ void pushReg(int *Reg, FILE *targetfile)
             fprintf(targetfile, " PUSH R%d\n", i);
             pos++;
         }
-        return;
     }
+    return;
 }
 void popReg(int *Reg, FILE *targetfile)
 {
@@ -167,21 +168,22 @@ void popArgument(struct parameter *paramlist, FILE *targetfile)
 }
 int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 = return address
 {
+    int r1, r2, r3;
     if (t == NULL)
     {
         return 0;
     }
-    int r1, r2, r3;
     if (t->nodetype == CONNECTOR)
     {
         if (t->left)
         {
-            codeGen(t->left, targetfile, 0);
+            junk = codeGen(t->left, targetfile, 0);
         }
         if (t->right)
         {
-            codeGen(t->right, targetfile, 0);
+            junk = codeGen(t->right, targetfile, 0);
         }
+        return 0;
     }
     if (t->nodetype == OPERATOR)
     {
@@ -363,6 +365,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             pos++;
         }
         freeReg(REG_COUNTER->Reg);
+        return 0;
     }
     if (t->nodetype == POWER)
     {
@@ -428,6 +431,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         pos++;
         freeReg(REG_COUNTER->Reg);
         freeReg(REG_COUNTER->Reg);
+        return 0;
     }
     if (t->nodetype == NUMBER)
     {
@@ -508,29 +512,34 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             else
             {
                 int size = t->left->val;
-                r3 = codeGen(t->left, targetfile, 1);
                 if (option == 1)
                 {
-                    r1 = Symbol_Temp->binding;
                     r2 = getReg(REG_COUNTER->Reg);
+                    r3 = codeGen(t->left, targetfile, 1);
+                    r1 = Symbol_Temp->binding;
                     fprintf(targetfile, " ADD R%d,%d\n", r3, r1);
                     pos++;
                     fprintf(targetfile, " MOV R%d,[R%d]\n", r2, r3);
                     pos++;
+                    freeReg(REG_COUNTER->Reg);
                     return r2;
                 }
                 if (option == 0)
                 {
-                    r1 = Symbol_Temp->binding;
                     r2 = getReg(REG_COUNTER->Reg);
+                    r3 = codeGen(t->left, targetfile, 1);
+                    r1 = Symbol_Temp->binding;
                     fprintf(targetfile, " ADD R%d,%d\n", r3, r1);
                     pos++;
                     fprintf(targetfile, " MOV R%d,R%d\n", r2, r3);
                     pos++;
+                    freeReg(REG_COUNTER->Reg);
+
                     return r2;
                 }
             }
         }
+        return 0;
     }
 
     if (t->nodetype == IFST)
@@ -543,7 +552,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         fprintf(targetfile, " JZ R%d,L%d\n", r1, l_if);
         pos++;
         freeReg(REG_COUNTER->Reg);
-        r2 = codeGen(t->right->left, targetfile, 1);
+        junk = codeGen(t->right->left, targetfile, 1);
         fprintf(targetfile, " JMP L%d\n", l_end);
         pos++;
         //SLIST
@@ -554,15 +563,14 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         fprintf(targetfile, "L%d:\n", l_if);
         if (t->right->right)
         {
-            freeReg(REG_COUNTER->Reg);
-            r2 = codeGen(t->right->right, targetfile, 1);
+            junk = codeGen(t->right->right, targetfile, 1);
         }
         LabelTable[l_end].address = pos * 2 + start_adress; //JMP L_WHILE
         snprintf(name, 6, "L%d", l_end);
         strcpy(LabelTable[l_end].name, name);
         fwrite(&LabelTable[l_end], sizeof(struct labeltable), 1, label_file);
         fprintf(targetfile, "L%d:\n", l_end);
-        freeReg(REG_COUNTER->Reg);
+        return 0;
     }
     if (t->nodetype == WHILEST)
     {
@@ -583,11 +591,10 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         r1 = codeGen(t->left, targetfile, 1);
         fprintf(targetfile, " JZ R%d,L%d\n", r1, l_end);
         pos++;
+        freeReg(REG_COUNTER->Reg);
         snprintf(name, 6, "L%d", l_end);
         strcpy(LOOP_COUNTER_HEAD->break_label, name);
-        pos++;
-        freeReg(REG_COUNTER->Reg);
-        r2 = codeGen(t->right, targetfile, 1);
+        junk = codeGen(t->right, targetfile, 1);
         fprintf(targetfile, " JMP L%d\n", l_while);
         pos++;
         fprintf(targetfile, "L%d:\n", l_end);
@@ -596,6 +603,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         strcpy(LabelTable[l_end].name, name);
         fwrite(&LabelTable[l_end], sizeof(struct labeltable), 1, label_file);
         LOOP_COUNTER_HEAD = LOOP_COUNTER_HEAD->prev;
+        return 0;
     }
     if (t->nodetype == BREAKST)
     {
@@ -625,6 +633,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             temptable->binding = Lallocatemem(temptable->size, targetfile);
             temptable = temptable->prev;
         }
+        return 0;
     }
     if (t->nodetype == GDECLARATION)
     {
@@ -636,6 +645,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             temptable->binding = Gallocatemem(temptable->size);
             temptable = temptable->prev;
         }
+        return 0;
     }
     if (t->nodetype == PDECLARATION)
     {
@@ -649,6 +659,8 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             temptable->binding = Pallocatemem(temptable->size);
             temptable = temptable->prev;
         }
+        paramem = -3;
+        return 0;
     }
     if (t->nodetype == ARGUMENT)
     {
@@ -656,14 +668,17 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         fprintf(targetfile, " PUSH R%d\n", r1);
         pos++;
         freeReg(REG_COUNTER->Reg);
+        return 0;
     }
     if (t->nodetype == FUNCALL)
     {
         struct parameter *paramlist;
-        help_viewReg(REG_COUNTER->Reg);
-        pushReg(REG_COUNTER->Reg, targetfile);
-        codeGen(t->left, targetfile, 1);
-        fprintf(targetfile, " PUSH R0\n");
+        memcpy(reg_temp, REG_COUNTER->Reg, sizeof(int) * 20);
+        help_viewReg(reg_temp);
+        pushReg(reg_temp, targetfile);
+        junk = codeGen(t->left, targetfile, 1);
+        r1 = getReg(REG_COUNTER->Reg);
+        fprintf(targetfile, " PUSH R%d\n", r1);
         pos++;
         struct symboltable *func_info = GLookup(t->varname);
         if (func_info == NULL)
@@ -673,12 +688,11 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         }
         fprintf(targetfile, " CALL L%d\n", func_info->flabel);
         pos++;
-        r1 = getlabel();
         fprintf(targetfile, " POP R%d\n", r1);
         pos++;
         paramlist = func_info->paramlist;
         popArgument(paramlist, targetfile);
-        popReg(REG_COUNTER->Reg, targetfile);
+        popReg(reg_temp, targetfile);
         return r1;
     }
     if (t->nodetype == RETURNST)
@@ -700,6 +714,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         pos++;
         fprintf(targetfile, " RET\n");
         pos++;
+        return 0;
     }
 
     if (t->nodetype == FUNCDEF)
@@ -739,16 +754,15 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         pos++;
         if (t->left)
         {
-            codeGen(t->left, targetfile, 0);
+            junk = codeGen(t->left, targetfile, 0);
         }
         if (t->right)
         {
-            codeGen(t->right, targetfile, 0);
+            junk = codeGen(t->right, targetfile, 0);
         }
         REG_COUNTER = REG_COUNTER->prev;
+        return 0;
     }
-
-    return 0;
 }
 
 int evaluate(struct tnode *t)

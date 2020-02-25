@@ -1,32 +1,15 @@
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-struct name{
-    char *ant;
-};
-struct namelist
-{
-    struct name *val;
-    struct namelisl *next;
-    
-};
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 int main()
 {
-    struct name *a,*b;
-    struct namelist *ptr,*temp;
-    
-    a=(struct name*)malloc(sizeof(struct name));
-    a->ant=strdup("asf");
-    ptr=(struct namelist*)malloc(sizeof(struct namelist));
-    ptr->val=a;
-    b=(struct name*)malloc(sizeof(struct name));
-    b->ant=strdup("efg");
-    temp=(struct namelist*)malloc(sizeof(struct namelist));
-    temp->next=ptr;
-    temp->val=b;
-    ptr=temp;
-    printf("%s",ptr->val->ant);
-    ptr=ptr->next;
-    printf("%s",ptr->val->ant);
-    
+    int *r, *e;
+    r = (int *)malloc(sizeof(int) * 10);
+    e = (int *)malloc(sizeof(int) * 10);
+    r[0] = 1;
+    memcpy(e, r, sizeof(int) * 10);
+    r[0] = 2;
+    printf("%d", e[0]);
+    e[0] = 2;
+    printf("%d", r[0]);
 }

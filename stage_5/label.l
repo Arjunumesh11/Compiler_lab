@@ -16,8 +16,8 @@ struct labeltable table[No_labels];
             {
                 if(strcmp(table[j].name,yytext)==0)
                 {
-                   // printf("%d ",table[j].address);
-                   // printf("%s ",table[j].name);
+                    printf("%s ",table[j].name);
+                    printf("%d ",table[j].address);
                     fprintf(outfile,"%d",table[j].address);
                 }
             }
@@ -31,8 +31,8 @@ int main()
    label_file=fopen("label.dat","r");
     while(fread(&table[i],sizeof(struct labeltable),1,label_file))
     {
-       printf("%d ",table[i].address);
-       printf("%s ",table[i].name);
+      // printf("%d ",table[i].address);
+     //  printf("%s ",table[i].name);
         i++;
     }
    outfile=fopen("output2.txt","w");

@@ -1,10 +1,18 @@
 #pragma once
+#include <string.h>
+
 FILE *label_file;
 int reg[20];
+extern int labels;
+extern int pos;         //position of commands
+extern int memlocation; //current memory location
+extern int localmem;
+extern int paramem;
 
 #define INTE 0
 #define BOLE 1
 #define STRE 2
+#define FUNCTION 4
 
 #define NUMBER 1
 #define VARIABLE 2
@@ -102,3 +110,10 @@ int Lallocatemem(int n, FILE *targetfile);
 
 void help_viewtable(struct symboltable *table, int scope);
 void help_viewReg(int *Reg);
+
+extern struct labeltable LabelTable[No_labels];
+extern struct loop_counter *LOOP_COUNTER_HEAD, *LOOP_COUNTER_TEMP;
+extern struct symboltable *Symbol_Table, *temptable, *GLOBAL_TABLE;
+extern struct symboltablelist *LOCAL_TABLE, *PARAM_TABLE, *TEMP_tablelist;
+extern struct parameter *Temp_Parameter, *V_Parameter;
+extern struct Reg_counter *REG_COUNTER;

@@ -2,8 +2,9 @@
 	#include <stdlib.h>
 	#include <stdio.h>
 	#include "exprtree.h"
-	#include "exprtree.c"
+	//#include "exprtree.c"
 	int yylex(void);
+	int labels;
 	int r1,type_flag=0,ptype_flag=0;
 	FILE *target_file,*yyin,*f;
 	struct symboltable *temp_table,*G_TABLE_temp,*G_TABLE,*temp_paratable,*G_PARATABLE;
@@ -24,7 +25,7 @@ Program      : GDeclaration FuncList MainBlock	{codeGen($3, target_file, 0);}
 			 ;
 MainBlock    : INT MAIN '(' ')' '{'Declarations Body'}' {$$=CreateTree(0,0,"MAIN",FUNCDEF,NULL,$6,$7,NULL);}
 		  	 ;
-FuncList     : FuncList FuncBlock	{codeGen($1, target_file, 0);}
+FuncList     : FuncList FuncBlock	{codeGen($2, target_file, 0);}
 		  	 | FuncBlock	{codeGen($1, target_file, 0);}
 		  	 ;
 		  
@@ -198,7 +199,6 @@ Stmt : InputStmt ';' {$$ = $1; }
 	 | Whilestmt ';'    {$$ = $1; }
 	 | BREAK ';'		 {$$=CreateTree(0,0,NULL,BREAKST,NULL,NULL,NULL,NULL);}
 	 | CONTINUE ';'     {$$=CreateTree(0,0,NULL,CONTINUEST,NULL,NULL,NULL,NULL);}
-	 | VAR '(' arguments ')' ';' {$$ = CreateTree(0,INTE,$1->varname,FUNCALL,NULL,$3,NULL,NULL);}
 	 | Retstmt	{$$ = CreateTree(0,0,NULL,RETURNST,NULL,$1,NULL,NULL);}
 	 ;
 

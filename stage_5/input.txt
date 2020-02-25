@@ -1,38 +1,36 @@
 
 
 decl
-  int fact(int n);
+ int fun(int x),a;
 enddecl
 
-int fact(int n)
+int fun(int x)
 {
   decl
-    int f;
-  enddecl
+enddecl
+ begin
+  if(x >= 91) then
+   a = 91;
+  else
+   a = fun(fun(x+11));
+  endif;
 
-  begin
-    if(n<=1) then
-      f=1;
-    else
-      f=fact(n-1);
-      f=n*f;
-    endif;
-
-    return f;
-  end
+  return a;
+ end
 }
 
 int main()
 {
-  decl
-    int res,a;
-  enddecl
+ decl
+  int b,c;
+ enddecl
 
-  begin
-    read(a);
-    res = fact(a);
-    write(res);
-    return 0;
-  end  
-}  
+ begin
+  read(b);
+  c = fun(b);
+  write(c);
+
+  return 0;
+ end
+}
 

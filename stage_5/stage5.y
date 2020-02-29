@@ -5,7 +5,7 @@
 	//#include "exprtree.c"
 	int yylex(void);
 	int labels;
-	int r1,type_flag=0,ptype_flag=0;
+	int r1,type_flag=0,ptype_flag=0,decltypeflag;
 	FILE *target_file,*yyin,*f;
 	struct symboltable *temp_table,*G_TABLE_temp,*G_TABLE,*temp_paratable,*G_PARATABLE;
 
@@ -14,14 +14,16 @@
 	struct tnode *no;
 }
 %type<no> BEGIN0 END GDeclaration FuncBlock Parameters FuncList MainBlock Body Slist Stmt NUM InputStmt Retstmt argument arguments OutputStmt AsgStmt READ WRITE expr VAR Ifstmt Whilestmt BREAK CONTINUE Declarations DECL ENDDECL
-%token RETURN MAIN READ WRITE POW VAR PLUS MINUS MUL DIV BEGIN0 END NUM EQUAL GRT LST GRE LSE NEQUAL EEQUAL IF THEN ENDIF ENDWHILE DO ELSE WHILE BREAK CONTINUE DECL ENDDECL INT STR
+%token RETURN MAIN READ WRITE TYPE ENDTYPE POW VAR PLUS MINUS MUL DIV BEGIN0 END NUM EQUAL GRT LST GRE LSE NEQUAL EEQUAL IF THEN ENDIF ENDWHILE DO ELSE WHILE BREAK CONTINUE DECL ENDDECL INT STR
 %nonassoc  GRT LST GRE LSE NEQUAL EEQUAL
 %left PLUS MINUS
 %left MUL DIV
 %%
-Program      : GDeclaration FuncList MainBlock	{codeGen($3, target_file, 0);}
-			 | GDeclaration MainBlock			{codeGen($2, target_file, 0);}
-			 | MainBlock						{codeGen($1, target_file, 0);}			
+Program      : TypeDefBlock GDeclaration FuncList MainBlock	{codeGen($4, target_file, 0);}
+			 | TypeDefBlock GDeclaration MainBlock			{codeGen($3, target_file, 0);}
+			 | GDeclaration FuncList MainBlock				{codeGen($3, target_file, 0);}
+			 | GDeclaration MainBlock						{codeGen($2, target_file, 0);}
+			 | MainBlock									{codeGen($1, target_file, 0);}			
 			 ;
 MainBlock    : INT MAIN '(' ')' '{'Declarations Body'}' {$$=CreateTree(0,0,"MAIN",FUNCDEF,NULL,$6,$7,NULL);}
 		  	 ;
@@ -46,6 +48,7 @@ GDeclaration : DECL GDeclList ENDDECL {
 									  } 
 			 | DECL ENDDECL			 { $$=CreateTree(0,0,NULL,GDECLARATION,NULL,NULL,NULL,NULL);}
 			 ;
+
 GDeclList 	 : GDeclList GDecl
 										{
 											temp_table=G_TABLE;
@@ -80,6 +83,26 @@ GDeclList 	 : GDeclList GDecl
 											G_TABLE_temp=NULL;
 										}	
 		     ;
+TypeDefBlock  : TYPE TypeDefList ENDTYPE                                              
+              ;
+
+TypeDefList   : TypeDefList TypeDef
+              | TypeDef
+              ;
+
+TypeDef       : VAR '{' FieldDeclList '}'   
+              ;
+
+FieldDeclList : FieldDeclList FieldDecl
+              | FieldDecl
+              ;
+
+FieldDecl    : TypeName VAR ';'
+			 ;
+TypeName     : INT
+             | STR
+             | VAR       
+             ;
 GDecl  	     : Type GVarlist ';' {
 								
 									temp_table=G_TABLE_temp;
@@ -154,6 +177,7 @@ Body         : BEGIN0 END						{$$=NULL;}
 	 		 ;
 
 Parameters   : ParamList	{
+								decltypeflag=0;
 								$$=CreateTree(0,0,NULL,PDECLARATION,NULL,NULL,NULL,G_PARATABLE);
 								G_PARATABLE=NULL;
 							}
@@ -216,7 +240,7 @@ Declarations : DECL DeclList ENDDECL {
 			 | DECL ENDDECL			{$$=NULL;}
 			 ;
 DeclList : DeclList Decl
-						{
+						{			decltypeflag=0;
 									temp_table=G_TABLE;
 									if(G_TABLE==NULL)
 									{
@@ -232,7 +256,8 @@ DeclList : DeclList Decl
 									}
 									G_TABLE_temp=NULL;
 						}
-		  |Decl	{
+		  |Decl	{					
+									decltypeflag=0;
 									temp_table=G_TABLE;
 									if(G_TABLE==NULL)
 									{
@@ -298,58 +323,45 @@ Varlist : Varlist','VAR
 						}
 	    ;
 
-InputStmt : READ '(' VAR ')' 	  	 			{$$ = CreateTree(0,0,NULL,READ0,NULL,$3,NULL,NULL);}
+InputStmt : READ '(' VAR ')' 	  	 		 {$$ = CreateTree(0,0,NULL,READ0,NULL,$3,NULL,NULL);}
 		  | READ '(' VAR '[' expr ']' ')'		{$$ = CreateTree(0,0,NULL,READ0,NULL,CreateTree(0,0,$3->varname,VARIABLE,NULL,$5,NULL,NULL),NULL,NULL);}
 		  ;
 
 OutputStmt : WRITE '(' expr ')' 			 {$$ = CreateTree(0,0,NULL,WRITE0,NULL,$3,NULL,NULL);}
 		   ;
 
-AsgStmt : VAR EQUAL expr 	     			 {$$ = CreateTree(0,0,NULL,OPERATOR,"=",$1,$3,NULL);}
-      	| VAR '[' expr ']' EQUAL expr  		 {if($3->type != INTE) {printf("type mismatch");exit(0);}$$ = CreateTree(0,0,NULL,OPERATOR,"=",CreateTree(0,0,$1->varname,VARIABLE,NULL,$3,NULL,NULL),$6,NULL);}
+AsgStmt : VAR EQUAL expr 	     			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",$1,$3,NULL);}
+      	| VAR '[' expr ']' EQUAL expr  		 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,$3->type,$1->varname,VARIABLE,NULL,$3,NULL,NULL),$6,NULL);}
 		;
 
-Ifstmt : IF '(' expr ')' THEN Slist ELSE Slist ENDIF  {if($3->type != BOLE) {printf("type mismatch");exit(0);}$$ =  CreateTree(0,0,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,$8,NULL),NULL);}
-	   | IF '(' expr ')' THEN Slist ENDIF			 {if($3->type != BOLE) {printf("type mismatch");exit(0);}$$ =  CreateTree(0,0,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,NULL,NULL),NULL);}
+Ifstmt : IF '(' expr ')' THEN Slist ELSE Slist ENDIF  {$$ =  CreateTree(0,BOLE,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,$8,NULL),NULL);}
+	   | IF '(' expr ')' THEN Slist ENDIF			 {$$ =  CreateTree(0,BOLE,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,NULL,NULL),NULL);}
 	   ;
 
-Whilestmt : WHILE '(' expr ')' DO Slist ENDWHILE  {if($3->type != BOLE) {printf("type mismatch");exit(0);}$$ =  CreateTree(0,0,NULL,WHILEST,NULL,$3,$6,NULL);}
+Whilestmt : WHILE '(' expr ')' DO Slist ENDWHILE  {$$ =  CreateTree(0,BOLE,NULL,WHILEST,NULL,$3,$6,NULL);}
 		  ;
 
-expr : expr PLUS expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,INTE,NULL,OPERATOR,"+",$1,$3,NULL);}
-	 | expr MINUS expr  	{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,INTE,NULL,OPERATOR,"-",$1,$3,NULL);}
-	 | expr MUL expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,INTE,NULL,OPERATOR,"*",$1,$3,NULL);}
-	 | expr DIV expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,INTE,NULL,OPERATOR,"/",$1,$3,NULL);}
-	 
-	 | expr LST expr        {if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-	 						$$ = CreateTree(0,BOLE,NULL,OPERATOR,"<",$1,$3,NULL);}
-	 | expr GRT expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,">",$1,$3,NULL);}
-	 | expr GRE expr        {if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,">=",$1,$3,NULL);}
-	 | expr LSE expr		{if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,"<=",$1,$3,NULL);}
-	 | expr EEQUAL expr     {if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,"==",$1,$3,NULL);}
-	 | expr NEQUAL expr     {if(($1->type != INTE) || ($3->type != INTE)) {printf("type mismatch");exit(0);}
-		 					$$ = CreateTree(0,BOLE,NULL,OPERATOR,"!=",$1,$3,NULL);}
-	 
+expr : expr PLUS expr		{ $$ = CreateTree(0,INTE,NULL,OPERATOR,"+",$1,$3,NULL);}
+	 | expr MINUS expr  	{ $$ = CreateTree(0,INTE,NULL,OPERATOR,"-",$1,$3,NULL);}
+	 | expr MUL expr		{ $$ = CreateTree(0,INTE,NULL,OPERATOR,"*",$1,$3,NULL);}
+	 | expr DIV expr		{ $$ = CreateTree(0,INTE,NULL,OPERATOR,"/",$1,$3,NULL);}
+	 | expr LST expr        { $$ = CreateTree(0,BOLE,NULL,OPERATOR,"<",$1,$3,NULL);}
+	 | expr GRT expr		{ $$ = CreateTree(0,BOLE,NULL,OPERATOR,">",$1,$3,NULL);}
+	 | expr GRE expr        { $$ = CreateTree(0,BOLE,NULL,OPERATOR,">=",$1,$3,NULL);}
+	 | expr LSE expr		{ $$ = CreateTree(0,BOLE,NULL,OPERATOR,"<=",$1,$3,NULL);}
+	 | expr EEQUAL expr     { $$ = CreateTree(0,BOLE,NULL,OPERATOR,"==",$1,$3,NULL);}
+	 | expr NEQUAL expr     { $$ = CreateTree(0,BOLE,NULL,OPERATOR,"!=",$1,$3,NULL);}
 	 | '(' expr ')'			{$$ = $2;}
-	 | VAR '(' arguments ')'	{$$ = CreateTree(0,INTE,$1->varname,FUNCALL,NULL,$3,NULL,NULL);}
-	 | VAR '[' expr ']'		{if($3->type != INTE) {printf("type mismatch");exit(0);}$$ = CreateTree(0,INTE,$1->varname,VARIABLE,NULL,$3,NULL,NULL);}
+	 | VAR '(' arguments ')'{$$ = CreateTree(0,INTE,$1->varname,FUNCALL,NULL,$3,NULL,NULL);}
+	 | VAR '[' expr ']'		{$$ = CreateTree(0,INTE,$1->varname,VARIABLE,NULL,$3,NULL,NULL);}
 	 | NUM					{$$ = $1;}
 	 | VAR 					{$$ = $1;}
-	 | POW '(' expr ')'		{$$=CreateTree(0,0,NULL,POWER,NULL,$3,NULL,NULL);}
 	 ;
 arguments : argument {$$=$1;}
 		  | {$$=NULL;}
 		  ;
-argument 	 : argument ',' expr {$$=CreateTree(0,0,NULL,CONNECTOR,NULL,$1,CreateTree(0,0,NULL,ARGUMENT,NULL,$3,NULL,NULL),NULL);}
-			 | expr	{$$=CreateTree(0,0,NULL,ARGUMENT,NULL,$1,NULL,NULL);}
+argument 	 : argument ',' expr {$$=CreateTree(0,0,NULL,CONNECTOR,NULL,$1,CreateTree(0,INTE,NULL,ARGUMENT,NULL,$3,NULL,NULL),NULL);}
+			 | expr	{$$=CreateTree(0,$1->type,NULL,ARGUMENT,NULL,$1,NULL,NULL);}
 			 ;
 %%
 

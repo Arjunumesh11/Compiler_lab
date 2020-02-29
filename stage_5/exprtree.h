@@ -8,10 +8,11 @@ extern int pos;         //position of commands
 extern int memlocation; //current memory location
 extern int localmem;
 extern int paramem;
+extern int declflag, decltypeflag;
 
-#define INTE 0
-#define BOLE 1
-#define STRE 2
+#define INTE 1
+#define BOLE 2
+#define STRE 15
 #define FUNCTION 4
 
 #define NUMBER 1
@@ -57,7 +58,20 @@ struct symboltablelist
     struct symboltable *val;
     struct symboltablelist *prev;
 };
-
+struct Typetable
+{
+    char *name;               //type name
+    int size;                 //size of the type
+    struct Fieldlist *fields; //pointer to the head of fields list
+    struct Typetable *next;   // pointer to the next type table entry
+};
+struct Fieldlist
+{
+    char *name;             //name of the field
+    int fieldIndex;         //the position of the field in the field list
+    struct Typetable *type; //pointer to type table entry of the field's type
+    struct Fieldlist *next; //pointer to the next field
+};
 typedef struct tnode
 {
     int val;
@@ -93,6 +107,12 @@ void symbolinit(struct symboltable *SymbolTable); //intialise symbol table
 struct tnode *CreateTree(int val, int type, char *varname, int nodetype, char *op, tnode *l, tnode *r, struct symboltable *table);
 struct tnode *makePowerNode(struct tnode *l);
 
+void TypeTableCreate();                                                     //Function to initialise the type table entries with primitive types
+struct Typetable *TLookup(char *name);                                      //Search through the type table and return pointer to type table entry of type 'name'.
+struct Typetable *TInstall(char *name, int size, struct Fieldlist *fields); //Creates a type table entry for the (user defined) type of 'name' with given 'fields' and returns the pointer to the type table entry
+struct Fieldlist *FLookup(struct Typetable *type, char *name);              // Searches for a field of given 'name' in the 'fieldlist' of the given user-defined type and returns a pointer to the field entry
+int GetSize(struct Typetable *type);                                        // Returns the amount of memory words required to store a variable of the given type.
+
 int yyerror(char const *s);
 int min(int a, int b);
 int max(int a, int b);
@@ -110,6 +130,8 @@ int Lallocatemem(int n, FILE *targetfile);
 
 void help_viewtable(struct symboltable *table, int scope);
 void help_viewReg(int *Reg);
+int arguementcheck(struct parameter *parameters, struct tnode *l);
+int arguementcheck2(struct parameter *parameter1, struct symboltable *parameter2);
 
 extern struct labeltable LabelTable[No_labels];
 extern struct loop_counter *LOOP_COUNTER_HEAD, *LOOP_COUNTER_TEMP;

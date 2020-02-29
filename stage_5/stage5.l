@@ -6,11 +6,12 @@
 	
     int number;
     char *varname;
+	int declflag=0,decltypeflag=0;
 %}
 
 %%
 
-[0-9]+		{number = atoi(yytext); yylval.no = CreateTree(number,0,NULL,NUMBER,NULL,NULL,NULL,NULL); return NUM;}
+[0-9]+		{number = atoi(yytext); yylval.no = CreateTree(number,INTE,NULL,NUMBER,NULL,NULL,NULL,NULL); return NUM;}
 "begin" 	{return BEGIN0;}
 "end" 		{return END;}
 "pow" 		{return POW;}
@@ -28,10 +29,12 @@
 "endwhile"  {return ENDWHILE;}
 "break" 	{return BREAK;}
 "continue"  {return CONTINUE;}
-"decl"		{return DECL;}
-"enddecl"   {return ENDDECL;}
-"int"		{return INT;}
-"str"		{return STR;}
+"decl"		{declflag=1;return DECL;}
+"enddecl"   {declflag=0;return ENDDECL;}
+"int"		{decltypeflag=1;return INT;}
+"str"		{decltypeflag=1;return STR;}
+"type"		{return TYPE;}
+"endtype"	{return ENDTYPE;}
 
 "+"	{return PLUS;}
 "-"	{return MINUS;}

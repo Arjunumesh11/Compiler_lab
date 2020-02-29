@@ -49,35 +49,37 @@ extern int yydebug;
     MAIN = 259,
     READ = 260,
     WRITE = 261,
-    POW = 262,
-    VAR = 263,
-    PLUS = 264,
-    MINUS = 265,
-    MUL = 266,
-    DIV = 267,
-    BEGIN0 = 268,
-    END = 269,
-    NUM = 270,
-    EQUAL = 271,
-    GRT = 272,
-    LST = 273,
-    GRE = 274,
-    LSE = 275,
-    NEQUAL = 276,
-    EEQUAL = 277,
-    IF = 278,
-    THEN = 279,
-    ENDIF = 280,
-    ENDWHILE = 281,
-    DO = 282,
-    ELSE = 283,
-    WHILE = 284,
-    BREAK = 285,
-    CONTINUE = 286,
-    DECL = 287,
-    ENDDECL = 288,
-    INT = 289,
-    STR = 290
+    TYPE = 262,
+    ENDTYPE = 263,
+    POW = 264,
+    VAR = 265,
+    PLUS = 266,
+    MINUS = 267,
+    MUL = 268,
+    DIV = 269,
+    BEGIN0 = 270,
+    END = 271,
+    NUM = 272,
+    EQUAL = 273,
+    GRT = 274,
+    LST = 275,
+    GRE = 276,
+    LSE = 277,
+    NEQUAL = 278,
+    EEQUAL = 279,
+    IF = 280,
+    THEN = 281,
+    ENDIF = 282,
+    ENDWHILE = 283,
+    DO = 284,
+    ELSE = 285,
+    WHILE = 286,
+    BREAK = 287,
+    CONTINUE = 288,
+    DECL = 289,
+    ENDDECL = 290,
+    INT = 291,
+    STR = 292
   };
 #endif
 /* Tokens.  */
@@ -85,35 +87,37 @@ extern int yydebug;
 #define MAIN 259
 #define READ 260
 #define WRITE 261
-#define POW 262
-#define VAR 263
-#define PLUS 264
-#define MINUS 265
-#define MUL 266
-#define DIV 267
-#define BEGIN0 268
-#define END 269
-#define NUM 270
-#define EQUAL 271
-#define GRT 272
-#define LST 273
-#define GRE 274
-#define LSE 275
-#define NEQUAL 276
-#define EEQUAL 277
-#define IF 278
-#define THEN 279
-#define ENDIF 280
-#define ENDWHILE 281
-#define DO 282
-#define ELSE 283
-#define WHILE 284
-#define BREAK 285
-#define CONTINUE 286
-#define DECL 287
-#define ENDDECL 288
-#define INT 289
-#define STR 290
+#define TYPE 262
+#define ENDTYPE 263
+#define POW 264
+#define VAR 265
+#define PLUS 266
+#define MINUS 267
+#define MUL 268
+#define DIV 269
+#define BEGIN0 270
+#define END 271
+#define NUM 272
+#define EQUAL 273
+#define GRT 274
+#define LST 275
+#define GRE 276
+#define LSE 277
+#define NEQUAL 278
+#define EEQUAL 279
+#define IF 280
+#define THEN 281
+#define ENDIF 282
+#define ENDWHILE 283
+#define DO 284
+#define ELSE 285
+#define WHILE 286
+#define BREAK 287
+#define CONTINUE 288
+#define DECL 289
+#define ENDDECL 290
+#define INT 291
+#define STR 292
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -124,7 +128,7 @@ union YYSTYPE
 
 	struct tnode *no;
 
-#line 128 "y.tab.h" /* yacc.c:1909  */
+#line 132 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

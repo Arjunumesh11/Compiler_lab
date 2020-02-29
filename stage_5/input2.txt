@@ -1,47 +1,19 @@
 
 
 decl
-  int a,b,n,arr[10];
-  int writearr(int temp);
 enddecl
 
 
 
-
-int writearr(int temp)
-{
-  decl
-    int count;
-  enddecl
-
-  begin
-    count = 0;
-
-    while(count < temp) do
-      write(arr[count]);    
-      count = count+1;
-    endwhile;
-
-    return count;
-  end
-}
-
-
 int main()
 {
-  decl
-    int junk;
-    int temp;
-  enddecl
+ decl
+  int b,c;
+ enddecl
 
-  begin
-
-    arr[0]=1;
-    arr[1]=2;
-    arr[2]=3;
-    junk = writearr(1);
-    junk = writearr(3);
-    return junk;
-  end
+ begin
+  c=fun();
+  return 0;
+ end
 }
 

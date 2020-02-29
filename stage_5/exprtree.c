@@ -10,6 +10,8 @@ int localmem = 1;
 int paramem = -3;
 int reg_temp[20];
 int junk;
+int declflag;
+int decltypeflag;
 
 struct labeltable LabelTable[No_labels];
 struct loop_counter *LOOP_COUNTER_HEAD = NULL, *LOOP_COUNTER_TEMP = NULL;
@@ -44,6 +46,8 @@ struct symboltable *LLookup(char *name)
 }
 struct symboltable *PLookup(char *name)
 {
+    if (PARAM_TABLE == NULL)
+        return NULL;
     struct symboltable *Symbol_Temp = PARAM_TABLE->val;
     while (Symbol_Temp)
     {
@@ -55,6 +59,116 @@ struct symboltable *PLookup(char *name)
 }
 struct tnode *CreateTree(int val, int type, char *varname, int nodetype, char *op, tnode *l, tnode *r, struct symboltable *table)
 {
+    if (nodetype == OPERATOR)
+    {
+        if (r == NULL)
+        {
+            if (l->type != INTE)
+            {
+                printf("ERROR type mismatch INT\n");
+                exit(0);
+            }
+        }
+        else if (l->type != r->type)
+        {
+            printf("ERROR type mismatch %d %s = %d %s\n", l->type, l->varname, r->type, r->varname);
+            exit(0);
+        }
+    }
+    if ((nodetype == WHILEST) || (nodetype == IFST))
+    {
+        if (l->type != BOLE)
+        {
+            printf("\nERROR type mismatch BOOL\n");
+            exit(0);
+        }
+    }
+    if (nodetype == VARIABLE)
+    {
+        if (declflag != 1 && decltypeflag != 1)
+        {
+            struct symboltable *Symbol_Temp = NULL;
+            if ((Symbol_Temp = LLookup(varname)) || (Symbol_Temp = PLookup(varname)))
+            {
+                type = Symbol_Temp->type;
+            }
+            else if (Symbol_Temp = GLookup(varname))
+            {
+                type = Symbol_Temp->type;
+            }
+            if (l != NULL)
+            {
+                if (l->type != INTE)
+                {
+                    printf("type mismatch INT");
+                    exit(0);
+                }
+            }
+            if (Symbol_Temp == NULL)
+            {
+                printf("\nERROR Variable undeclared : %s\n", varname);
+                exit(0);
+            }
+            printf("varname : %s type : %d\n", varname, type);
+        }
+    }
+    if (nodetype == FUNCALL)
+    {
+        struct symboltable *Symbol_Temp;
+        Symbol_Temp = GLookup(varname);
+        if (Symbol_Temp == NULL)
+        {
+            printf("\nVariable Not declared : %s", varname);
+            exit(0);
+        }
+        type = Symbol_Temp->type;
+        if (arguementcheck(Symbol_Temp->paramlist, l))
+        {
+            printf("\nERROR CALL argument unmatched in %s", varname);
+            exit(0);
+        }
+    }
+    if ((nodetype == FUNCDEF) && (strcmp(varname, "MAIN")))
+    {
+
+        struct symboltable *Symbol_Temp;
+        Symbol_Temp = GLookup(varname);
+        if (Symbol_Temp == NULL)
+        {
+            printf("\nVariable Not declared : %s", varname);
+            exit(0);
+        }
+        if (l == NULL)
+        {
+            if (Symbol_Temp->paramlist != NULL)
+            {
+                printf("\nERROR CALL argument unmatched in %s", varname);
+                exit(0);
+            }
+        }
+        if (l != NULL)
+        {
+            if (arguementcheck2(Symbol_Temp->paramlist, l->Gsymbol))
+            {
+                printf("\nERROR Definition argument unmatched in %s", varname);
+                exit(0);
+            }
+        }
+    }
+    if (nodetype == GDECLARATION)
+    {
+        GLOBAL_TABLE = table;
+    }
+    if (nodetype == DECLARATION)
+    {
+        LOCAL_TABLE = (struct symboltablelist *)malloc(sizeof(struct symboltablelist));
+        LOCAL_TABLE->val = table;
+    }
+    if (nodetype == PDECLARATION)
+    {
+        PARAM_TABLE = (struct symboltablelist *)malloc(sizeof(struct symboltablelist));
+        PARAM_TABLE->val = table;
+    }
     struct tnode *temp;
     temp = (struct tnode *)malloc(sizeof(struct tnode));
 
@@ -449,14 +563,10 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
     }
     if (t->nodetype == VARIABLE)
     {
-        struct symboltable *Symbol_Temp;
+        struct symboltable *Symbol_Temp = NULL;
         if ((Symbol_Temp = LLookup(t->varname)) || (Symbol_Temp = PLookup(t->varname)))
         {
-            if (Symbol_Temp == NULL)
-            {
-                printf("\nVariable Not declared : %s", t->varname);
-                exit(0);
-            }
+
             if (option == 1)
             {
                 r1 = Symbol_Temp->binding;
@@ -538,6 +648,11 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
                     return r2;
                 }
             }
+        }
+        if (Symbol_Temp == NULL)
+        {
+            printf("\nERROR Variable undeclared : %s\n", t->varname);
+            exit(0);
         }
         return 0;
     }
@@ -637,7 +752,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
     }
     if (t->nodetype == GDECLARATION)
     {
-        GLOBAL_TABLE = t->Gsymbol;
+
         //help_viewtable(GLOBAL_TABLE, 1);
         temptable = t->Gsymbol;
         while (temptable)
@@ -674,7 +789,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
     {
         struct parameter *paramlist;
         memcpy(reg_temp, REG_COUNTER->Reg, sizeof(int) * 20);
-        help_viewReg(reg_temp);
+        //help_viewReg(reg_temp);
         pushReg(reg_temp, targetfile);
         junk = codeGen(t->left, targetfile, 1);
         r1 = getReg(REG_COUNTER->Reg);
@@ -683,7 +798,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         struct symboltable *func_info = GLookup(t->varname);
         if (func_info == NULL)
         {
-            printf("ERROR  fun : %s declared", t->varname);
+            printf("ERROR  function undeclared : %s ", t->varname);
             exit(0);
         }
         fprintf(targetfile, " CALL L%d\n", func_info->flabel);
@@ -736,7 +851,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
 
         else if (Symbol_Temp == NULL)
         {
-            printf("\nFunction Not declared : %s", t->varname);
+            printf("\nFunction Not declared : %s\n", t->varname);
             exit(0);
         }
         else
@@ -845,4 +960,76 @@ void help_viewReg(int *Reg)
         if (Reg[i])
             printf("%d", i);
     }
+}
+
+int arguementcheck(struct parameter *parameters, struct tnode *l)
+{
+    // printf("count");
+    if (l == NULL && parameters == NULL)
+    {
+        // printf("\nzero");
+        return 0;
+    }
+    if (l != NULL)
+    {
+        if (parameters == NULL)
+        {
+            // printf("\ncheck1");
+            return 1;
+        }
+    }
+    if (l == NULL)
+    {
+        if (parameters != NULL)
+        {
+            //printf("\ncheck2");
+            return 1;
+        }
+        else
+            return 0;
+    }
+    if (l->nodetype == CONNECTOR)
+    {
+        // printf("\nconnector");
+        if (arguementcheck(parameters, l->right) == 1)
+            return 1;
+        else
+        {
+            parameters = parameters->prev;
+        }
+
+        if (arguementcheck(parameters, l->left) == 1)
+            return 1;
+    }
+    if (l->nodetype == ARGUMENT)
+    {
+        //printf("\narg");
+        if (parameters == NULL)
+            return 1;
+        if (parameters->type != l->type)
+            return 1;
+    }
+    if (parameters->prev == NULL)
+        return 0;
+    else
+        return 2;
+}
+int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltable1)
+{
+    while (parameter1 || symboltable1)
+    {
+        if ((parameter1 == NULL) && (symboltable1 != NULL))
+        {
+            return 1;
+        }
+        if ((symboltable1 == NULL) && (parameter1 != NULL))
+        {
+            return 1;
+        }
+        if (parameter1->type != symboltable1->type)
+            return 1;
+        parameter1 = parameter1->prev;
+        symboltable1 = symboltable1->prev;
+    }
+    return 0;
 }

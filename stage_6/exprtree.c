@@ -62,18 +62,28 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
 {
     if (nodetype == OPERATOR)
     {
+        // help_viewtypetable();
+
+        //printf("%s", r->type);
         if (r == NULL)
         {
             if (l->type != INTE)
             {
-                printf("ERROR type mismatch INT\n");
+                printf("ERROR type mismatch in operator %s %s \n", l->varname, op);
                 exit(0);
             }
         }
-        else if (strcmp(l->type, r->type))
+        if (l->type && r->type)
         {
-            printf("ERROR type mismatch %s %s = %s %s\n", l->type, l->varname, r->type, r->varname);
-            exit(0);
+            if (strcmp(l->type, r->type))
+            {
+                //printf("adsf %s", r->type);
+                if (strcmp(r->type, "NULL"))
+                {
+                    printf("ERROR type mismatch %s %s = %s %s\n", l->type, l->varname, r->type, r->varname);
+                    exit(0);
+                }
+            }
         }
     }
     if ((nodetype == WHILEST) || (nodetype == IFST))
@@ -86,7 +96,7 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
     }
     if (nodetype == VARIABLE)
     {
-        if (declflag != 1 && decltypeflag != 1)
+        if (strcmp(varname, "NULL"))
         {
             struct symboltable *Symbol_Temp = NULL;
             if ((Symbol_Temp = LLookup(varname)) || (Symbol_Temp = PLookup(varname)))
@@ -110,7 +120,6 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
                 printf("\nERROR Variable undeclared : %s\n", varname);
                 exit(0);
             }
-            // printf("varname : %s type : %s\n", varname, type);
         }
     }
     if (nodetype == FUNCALL)
@@ -126,7 +135,7 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
         //printf("%s", type);
         if (arguementcheck(Symbol_Temp->paramlist, l))
         {
-            printf("\nERROR CALL argument unmaatched in %s", varname);
+            printf("\nERROR CALL argument unmatched in %s", varname);
             exit(0);
         }
     }
@@ -149,7 +158,7 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
         {
             if (Symbol_Temp->paramlist != NULL)
             {
-                printf("\nERROR CALL argument unmaaatched in %s", varname);
+                printf("\nERROR CALL argument unmatched in %s", varname);
                 exit(0);
             }
         }
@@ -175,6 +184,38 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
     {
         PARAM_TABLE = (struct symboltablelist *)malloc(sizeof(struct symboltablelist));
         PARAM_TABLE->val = table;
+    }
+    if (nodetype == FIELD)
+    {
+        // help_viewtypetable();
+        if (l == NULL)
+        {
+            struct symboltable *Symbol_Temp = NULL;
+            if ((Symbol_Temp = LLookup(varname)) || (Symbol_Temp = PLookup(varname)))
+            {
+                type = strdup(Symbol_Temp->type);
+            }
+            else if (Symbol_Temp = GLookup(varname))
+            {
+                type = strdup(Symbol_Temp->type);
+            }
+            if (Symbol_Temp == NULL)
+            {
+                printf("\nERROR Variable undeclared : %s\n", varname);
+                exit(0);
+            }
+        }
+        else
+        {
+            struct Typetable *typet = TLookup(l->type);
+            struct Fieldlist *fieldt = FLookup(typet, varname);
+            if (fieldt->type == NULL)
+            {
+                //help_viewtypetable();
+                type = TLookup(fieldt->typename)->name;
+                printf("%s %s \n", type, varname);
+            }
+        }
     }
     struct tnode *temp;
     temp = (struct tnode *)malloc(sizeof(struct tnode));
@@ -656,11 +697,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
                 }
             }
         }
-        if (Symbol_Temp == NULL)
-        {
-            printf("\nERROR Variable undeclared : %s\n", t->varname);
-            exit(0);
-        }
+
         return 0;
     }
 
@@ -1043,58 +1080,65 @@ int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltabl
 void help_viewtypetable()
 {
     struct Typetable *TABLE = TYPE_TABLE;
+    struct Fieldlist *temp_field;
     printf("\n Type Table \n");
     while (TABLE)
     {
-        printf("    %s size : %d ", TABLE->name, TABLE->size);
-        if (TABLE->fields)
+        printf("\n    %s size : %d ", TABLE->name, TABLE->size);
+        temp_field = TABLE->fields;
+        if (temp_field)
         {
             printf("\n     fields : \n");
-            while (TABLE->fields)
+            while (temp_field)
             {
                 printf("         %s index %d \n", TABLE->fields->name, TABLE->fields->fieldIndex);
-                TABLE->fields = TABLE->fields->next;
+                temp_field = temp_field->next;
             }
         }
         TABLE = TABLE->next;
     }
+    printf("END");
 }
 void TypeTableCreate()
 {
-    TYPE_TABLE = TInstall("INT", 1, NULL);
-    TYPE_TABLE->next = TInstall("STR", 1, NULL);
-    TYPE_TABLE = TYPE_TABLE->next;
-    TYPE_TABLE = TInstall("BOOL", 1, NULL);
+    struct Typetable *temp_TYPE_TABLE;
+    temp_TYPE_TABLE = TInstall("int", 1, NULL);
+    TYPE_TABLE = temp_TYPE_TABLE;
+    temp_TYPE_TABLE->next = TInstall("bool", 1, NULL);
+    temp_TYPE_TABLE = temp_TYPE_TABLE->next;
+    temp_TYPE_TABLE->next = TInstall("str", 1, NULL);
 }
 struct Typetable *TInstall(char *name, int size, struct Fieldlist *fields)
 {
-    struct Typetable *temptable = (struct Typetable *)malloc(sizeof(struct Typetable));
-    temptable->name = name;
-    temptable->size = size;
-    temptable->fields = fields;
-    temptable->next = NULL;
-    return temptable;
+    struct Typetable *temp_table = (struct Typetable *)malloc(sizeof(struct Typetable));
+    temp_table->name = name;
+    temp_table->size = size;
+    temp_table->fields = fields;
+    temp_table->next = NULL;
+    return temp_table;
 }
 struct Typetable *TLookup(char *name)
 {
-    struct Typetable *temptable = TYPE_TABLE;
-    while (temptable)
+    struct Typetable *temp_table = TYPE_TABLE;
+    while (temp_table)
     {
-        if (strcmp(TYPE_TABLE->name, name) == 0)
-            return temptable;
-        temptable = temptable->next;
+        if (strcmp(temp_table->name, name) == 0)
+            return temp_table;
+        temp_table = temp_table->next;
     }
     return NULL;
 }
 struct Fieldlist *FLookup(struct Typetable *type, char *name)
 {
-    struct Fieldlist *tempfield;
-    tempfield = type->fields;
-    while (tempfield)
+    if (type == NULL)
+        return NULL;
+    struct Fieldlist *temp_field;
+    temp_field = type->fields;
+    while (temp_field)
     {
-        if (strcmp(name, tempfield->name) == 0)
-            return tempfield;
-        tempfield = tempfield->next;
+        if (strcmp(name, temp_field->name) == 0)
+            return temp_field;
+        temp_field = temp_field->next;
     }
     return NULL;
 }

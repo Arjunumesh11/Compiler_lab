@@ -19,9 +19,9 @@
 	char* name;
 	struct tnode *no;
 }
-%type<no> BEGIN0 END GDeclaration FuncBlock Parameters FuncList MainBlock Body Slist Stmt NUM InputStmt Retstmt argument arguments OutputStmt AsgStmt READ WRITE expr Ifstmt Whilestmt BREAK CONTINUE Declarations DECL ENDDECL
+%type<no> Field BEGIN0 END GDeclaration FuncBlock Parameters FuncList MainBlock Body Slist Stmt NUM InputStmt Retstmt argument arguments OutputStmt AsgStmt READ WRITE expr Ifstmt Whilestmt BREAK CONTINUE Declarations DECL ENDDECL
 %type<name>	Type INT STR VAR
-%token RETURN MAIN READ WRITE TYPE ENDTYPE POW VAR PLUS MINUS MUL DIV BEGIN0 END NUM EQUAL GRT LST GRE LSE NEQUAL EEQUAL IF THEN ENDIF ENDWHILE DO ELSE WHILE BREAK CONTINUE DECL ENDDECL INT STR
+%token ALLOC  INTIALIZE RETURN MAIN READ WRITE TYPE ENDTYPE NULL0 POW VAR PLUS MINUS MUL DIV BEGIN0 END NUM EQUAL GRT LST GRE LSE NEQUAL EEQUAL IF THEN ENDIF ENDWHILE DO ELSE WHILE BREAK CONTINUE DECL ENDDECL INT STR
 %nonassoc  GRT LST GRE LSE NEQUAL EEQUAL
 %left PLUS MINUS
 %left MUL DIV
@@ -90,16 +90,27 @@ GDeclList 	 : GDeclList GDecl
 											G_TABLE_temp=NULL;
 										}	
 		     ;
-TypeDefBlock  : TYPE TypeDefList ENDTYPE {help_viewtypetable();}                                             
+TypeDefBlock  : TYPE TypeDefList ENDTYPE {}                                             
               ;
 
 TypeDefList   : TypeDefList TypeDef		{	
+											temptypetable=TYPE_TABLE;
+				  							while(temptypetable->next)
+											  {
+												  temptypetable=temptypetable->next;
+											  }
 											temptypetable->next=TInstall(name,0,tempfield);
-											temptypetable=temptypetable->next;
+											tempfield=NULL;
 										}
               | TypeDef					{
-				  							TYPE_TABLE=TInstall(name,0,tempfieldlist);
+				  							
 											temptypetable=TYPE_TABLE;
+				  							while(temptypetable->next)
+											  {
+												  temptypetable=temptypetable->next;
+											  }
+											temptypetable->next=TInstall(name,0,tempfield);
+											tempfield=NULL;
 			  							}
               ;
 
@@ -111,24 +122,33 @@ FieldDeclList : FieldDeclList FieldDecl {
 											tempfieldlist=tempfieldlist->next;	
 											tempfieldlist->name=strdup(name);
 											tempfieldlist->type=TLookup(type_flag);
+											tempfieldlist->typename=strdup(type_flag);
+											
 											tempfieldlist->fieldIndex=Index;
 											name=NULL;type_flag=NULL;
 											Index++;
 										}
               | FieldDecl				{	
-				  							tempfieldlist=(struct Fieldlist*)malloc(sizeof(struct Fieldlist));
-											tempfieldlist->name=strdup(name);
-											name=NULL;type_flag=NULL;
-											tempfieldlist->fieldIndex=Index;
-											tempfield=tempfieldlist;
+				  							tempfield=(struct Fieldlist*)malloc(sizeof(struct Fieldlist));
+											tempfield->name=strdup(name);
+											tempfield->type=TLookup(type_flag);
+											tempfield->typename=strdup(type_flag);
+											if(tempfield->type==NULL)
+											{
+												printf("ERROR TYPE not found %s",type_flag);
+												exit(0);
+											}
+											tempfield->fieldIndex=Index;
+											tempfieldlist=tempfield;
+											name=NULL;type_flag=NULL; 
 											Index++;
 										}
               ;
 
 FieldDecl    : Type VAR ';' {name=strdup($2);type_flag=strdup($1);}
 			 ;
-Field   : Field '.' VAR	{;}	
-		| VAR '.'VAR	{;}
+Field   : Field '.' VAR	{$$=CreateTree(0,0,$3,FIELD,NULL,$1,NULL,NULL);}	
+		| VAR '.'VAR	{$$=CreateTree(0,0,$3,FIELD,NULL,CreateTree(0,0,$1,FIELD,NULL,NULL,NULL,NULL),NULL,NULL);}
 		;
 GDecl  	     : Type GVarlist ';' {
 								
@@ -358,8 +378,8 @@ OutputStmt : WRITE '(' expr ')' 			 {$$ = CreateTree(0,0,NULL,WRITE0,NULL,$3,NUL
 		   ;
 
 AsgStmt : VAR EQUAL expr 	     			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,NULL,NULL,NULL),$3,NULL);}
-      	| VAR '[' expr ']' EQUAL expr  		 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,$3->type,$1,VARIABLE,NULL,$3,NULL,NULL),$6,NULL);}
-		| Field EQUAL expr					 {}
+      	| VAR '[' expr ']' EQUAL expr  		 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,$3,NULL,NULL),$6,NULL);}
+		| Field EQUAL expr					 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",$1,$3,NULL);}
 		;
 
 Ifstmt : IF '(' expr ')' THEN Slist ELSE Slist ENDIF  {$$ =  CreateTree(0,BOLE,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,$8,NULL),NULL);}
@@ -384,7 +404,10 @@ expr : expr PLUS expr		{ $$ = CreateTree(0,INTE,NULL,OPERATOR,"+",$1,$3,NULL);}
 	 | VAR '[' expr ']'		{$$ = CreateTree(0,INTE,$1,VARIABLE,NULL,$3,NULL,NULL);}
 	 | NUM					{$$ = $1;}
 	 | VAR 					{$$ = CreateTree(0,INTE,$1,VARIABLE,NULL,NULL,NULL,NULL);}
-	 | Field				{;}
+	 | Field				{$$=$1;}
+	 | NULL0				{$$=CreateTree(0,NULL1,strdup(NULL1),VARIABLE,NULL,NULL,NULL,NULL);}
+	 | ALLOC '(' ')'		{$$=CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL);;}
+	 | INTIALIZE '(' ')'	{$$=CreateTree(0,NULL1,strdup("intialize"),INIT,NULL,NULL,NULL,NULL);;}
 	 ;
 arguments : argument {$$=$1;}
 		  | {$$=NULL;}
@@ -409,6 +432,7 @@ int main(int argc,char** argv) {
 	yyin=fopen(argv[1],"r");
 	target_file=fopen("output.txt","w");
 	label_file=fopen("label.dat","w");
+	TypeTableCreate();
 	fprintf(target_file, " %d\n %d\n %d\n %d\n %d\n %d\n %d\n %d\n BRKP\n",0,2056,0,0,0,0,0,0);
 	fprintf(target_file, " MOV SP, 5000\n");
 	fprintf(target_file, " PUSH R0\n");

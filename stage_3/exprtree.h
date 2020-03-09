@@ -27,18 +27,19 @@ struct symboltable
     int type;
     int size;
     int binding;
-    struct symboltable* prev;    
+    struct symboltable *prev;
 };
 
-typedef struct tnode{
- int val; 
- int type;
- char *varname;
- int nodetype;
- char *op;
- struct tnode *left,*right; 
- struct symboltable* Gsymbol;
- }tnode;
+typedef struct tnode
+{
+    int val;
+    int type;
+    char *varname;
+    int nodetype;
+    char *op;
+    struct tnode *left, *right;
+    struct symboltable *Gsymbol;
+} tnode;
 
 struct labeltable
 {
@@ -48,20 +49,20 @@ struct labeltable
 
 struct loop_counter
 {
- char break_label[5];
- char continue_label[5];
- struct loop_counter *prev; 
+    char break_label[5];
+    char continue_label[5];
+    struct loop_counter *prev;
 };
 
-struct symboltable *Lookup(char *name);                         //search and return var info
-void symbolinit(struct symboltable* SymbolTable);               //intialise symbol table
-struct tnode* CreateTree(int val,int type,char *varname,int nodetype,char *op,tnode *l,tnode *r,struct symboltable* table);
-struct tnode* makePowerNode(struct tnode* l);
+struct symboltable *Lookup(char *name);           //search and return var info
+void symbolinit(struct symboltable *SymbolTable); //intialise symbol table
+struct tnode *CreateTree(int val, int type, char *varname, int nodetype, char *op, tnode *l, tnode *r, struct symboltable *table);
+struct tnode *makePowerNode(struct tnode *l);
 
-int min(int a,int b);
-int max(int a,int b);
+int min(int a, int b);
+int max(int a, int b);
 int getReg();
 void freeReg();
 int getlabel();
-int codeGen(struct tnode *t,FILE *targetfile,int option); //option 1 = dereferencing 0 = return address
+int codeGen(struct tnode *t, FILE *targetfile, int option); //option 1 = dereferencing 0 = return address
 int evaluate(struct tnode *t);

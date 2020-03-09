@@ -29,12 +29,14 @@
 "endwhile"  {return ENDWHILE;}
 "break" 	{return BREAK;}
 "continue"  {return CONTINUE;}
-"decl"		{declflag=1;return DECL;}
-"enddecl"   {declflag=0;return ENDDECL;}
-"int"		{decltypeflag=1;yylval.name=strdup("int");return INT;}
-"str"		{decltypeflag=1;yylval.name=strdup("str");return STR;}
-"type"		{declflag=1;return TYPE;}
-"endtype"	{declflag=0;return ENDTYPE;}
+"decl"		{return DECL;}
+"enddecl"   {return ENDDECL;}
+"int"		{yylval.name=strdup("int");return INT;}
+"str"		{yylval.name=strdup("str");return STR;}
+"type"		{return TYPE;}
+"endtype"	{return ENDTYPE;}
+"alloc"		{return ALLOC;}
+"initialize"	{return INTIALIZE;}
 
 "+"	{return PLUS;}
 "-"	{return MINUS;}
@@ -48,6 +50,7 @@
 ">"  {return GRT;}
 "<"  {return LST;}
 "!=" {return NEQUAL;}
+"null"	{return NULL0;}
 
 [A-Za-z][0-9A-Za-z]* 	{varname=strdup(yytext);    yylval.name =varname; return VAR;}
 [\"][0-9A-Za-z]+[\"] 	{varname=strdup(yytext);    yylval.no = CreateTree(0,STRE,varname,STRI,NULL,NULL,NULL,NULL); return NUM;}

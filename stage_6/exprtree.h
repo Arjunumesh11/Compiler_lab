@@ -10,9 +10,10 @@ extern int localmem;
 extern int paramem;
 extern int declflag, decltypeflag;
 
-#define INTE "INT"
-#define BOLE "BOOL"
-#define STRE "STR"
+#define INTE "int"
+#define BOLE "bool"
+#define STRE "str"
+#define NULL1 "NULL"
 #define FUNCTION 4
 
 #define NUMBER 1
@@ -34,6 +35,9 @@ extern int declflag, decltypeflag;
 #define FUNCALL 17
 #define ARGUMENT 18
 #define FUNCDEF 19
+#define FIELD 20
+#define ALOC 21
+#define INIT 22
 
 #define No_labels 100
 #define start_adress 2102
@@ -67,7 +71,7 @@ struct Typetable
 };
 struct Fieldlist
 {
-    char *name;             //name of the field
+    char *name, *typename;  //name of the field
     int fieldIndex;         //the position of the field in the field list
     struct Typetable *type; //pointer to type table entry of the field's type
     struct Fieldlist *next; //pointer to the next field

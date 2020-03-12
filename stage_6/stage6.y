@@ -152,8 +152,8 @@ FieldDeclList : FieldDeclList FieldDecl {
 
 FieldDecl    : Type VAR ';' {name=strdup($2);type_flag=strdup($1);}
 			 ;
-Field   : Field '.' VAR	{$$=CreateTree(0,0,$3,FIELD,NULL,$1,NULL,NULL);}	
-		| VAR '.'VAR	{$$=CreateTree(0,0,$3,FIELD,NULL,CreateTree(0,0,$1,FIELD,NULL,NULL,NULL,NULL),NULL,NULL);}
+Field   : Field '.' VAR	{$$=CreateTree(3,0,$3,FIELD,NULL,$1,NULL,NULL);}	
+		| VAR '.'VAR	{$$=CreateTree(2,0,$3,FIELD,NULL,CreateTree(1,0,$1,FIELD,NULL,NULL,NULL,NULL),NULL,NULL);}
 		;
 GDecl  	     : Type GVarlist ';' {
 								
@@ -389,7 +389,7 @@ AsgStmt : VAR EQUAL expr 	     			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",Cre
       	| VAR '[' expr ']' EQUAL expr  		 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,$3,NULL,NULL),$6,NULL);}
 		| Field EQUAL expr					 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",$1,$3,NULL);}
 	 	| VAR EQUAL ALLOC '(' ')'			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,NULL,NULL,NULL),CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
-	 	| VAR EQUAL INTIALIZE '(' ')'		 {$$=CreateTree(0,NULL1,strdup("intialize"),INIT,NULL,NULL,NULL,NULL);}
+	 	| VAR EQUAL INTIALIZE '(' ')'		 {$$ = CreateTree(0,NULL1,strdup("intialize"),INIT,NULL,NULL,NULL,NULL);}
 	 	| Field EQUAL ALLOC '(' ')'			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",$1,CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
 		;
 
@@ -421,8 +421,8 @@ expr : expr PLUS expr		{ $$ = CreateTree(0,INTE,NULL,OPERATOR,"+",$1,$3,NULL);}
 arguments : argument {$$=$1;}
 		  | {$$=NULL;}
 		  ;
-argument 	 : argument ',' expr {$$=CreateTree(0,0,NULL,CONNECTOR,NULL,$1,CreateTree(0,INTE,NULL,ARGUMENT,NULL,$3,NULL,NULL),NULL);}
-			 | expr	{$$=CreateTree(0,$1->type,NULL,ARGUMENT,NULL,$1,NULL,NULL);}
+argument 	 : argument ',' expr {$$=CreateTree(0,0,NULL,CONNECTOR,NULL,$1,CreateTree(0,$3->type,$3->varname,ARGUMENT,NULL,$3,NULL,NULL),NULL);}
+			 | expr	{$$=CreateTree(0,$1->type,$1->varname,ARGUMENT,NULL,$1,NULL,NULL);}
 			 ;
 %%
 

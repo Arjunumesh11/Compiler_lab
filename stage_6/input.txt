@@ -1,115 +1,41 @@
 
 
-type
-  bst{
-  int a;
-  bst left;
-  bst right;
-  }
-endtype
-
-decl
-  int in,opt;
-  bst insert(bst h, int key);
-  int inOrder(bst h); 
-  int preOrder(bst h);
-  int postOrder(bst h);           
-enddecl
-
-bst insert(bst h, int key)
-{
-
   decl
+   int r1,qi,r0,si,ti,ri;
   enddecl
-  begin
-    if (h == null) then
-    h = alloc();
-    h.a = key;
-    h.left = null;
-    h.right = null;
 
-    else if (key < h.a) then
-            h.left  = insert(h.left, key);
-
-         else if (key > h.a) then
-                 h.right = insert(h.right, key);
-              endif;
-          endif;
-    endif;   
-   
-    return h;
-  end
-}
-
-int inOrder(bst h){
+  int main()
+  {
    decl
-  enddecl  
-  begin
-    
-  if(h!=null) then
-     
-    in=inOrder(h.left);
-    write(h.a);
-    in=inOrder(h.right);
-  endif;
-  return 1;
-  end
-}
+    int s0,s1,t0,t1;
+   enddecl
 
-int preOrder(bst h){
-    decl
-  enddecl 
-  begin
-    
-  if(h!=null) then
-    write(h.a);
-    in=preOrder(h.left);
-    
-    in=preOrder(h.right);
-  endif;
-  return 1;
-  end
-}
+   begin
+    read(r0);
+    read(r1);
+    s0 = 1;
+    s1 = 0;
+    t0 = 0;
+    t1 = 1;
 
-int postOrder(bst h){
-    decl
-  enddecl 
-  begin
-    
-  if(h!=null) then
-    
-    in=postOrder(h.left);
-    
-    in=postOrder(h.right);
-    write(h.a);
-  endif;
-  return 1;
-  end
-}
-
-int main()
-{ 
-  decl
-  int val,flag;
-  bst Root;
-  enddecl
-
-  begin
-    val = initialize();
-    Root = null;
-
-    read(val);
-
-    while(val!=0) do
-      Root = insert(Root,val);
-      read(val);
+    while(r1 != 0) do
+     qi = r0/r1;
+     ri = r0 - (qi*r1);
+     si = s0 - (qi*s1);
+     ti = t0 - (qi*t1);
+     r0 = r1;
+     r1 = ri;
+     s0 = s1;
+     s1 = si;
+     t0 = t1;
+     t1 = ti;
     endwhile;
 
-    in = inOrder(Root);
-    in = preOrder(Root);
-    in = postOrder(Root);
-  
-  return 9;
-  end
-}
+    write(r0);
+    write(s0);
+    write(t0);
+
+    return 0;
+   end
+  }
 

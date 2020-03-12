@@ -1677,13 +1677,13 @@ yyreduce:
 
   case 22:
 #line 155 "stage6.y" /* yacc.c:1646  */
-    {(yyval.no)=CreateTree(0,0,(yyvsp[0].name),FIELD,NULL,(yyvsp[-2].no),NULL,NULL);}
+    {(yyval.no)=CreateTree(3,0,(yyvsp[0].name),FIELD,NULL,(yyvsp[-2].no),NULL,NULL);}
 #line 1682 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
 #line 156 "stage6.y" /* yacc.c:1646  */
-    {(yyval.no)=CreateTree(0,0,(yyvsp[0].name),FIELD,NULL,CreateTree(0,0,(yyvsp[-2].name),FIELD,NULL,NULL,NULL,NULL),NULL,NULL);}
+    {(yyval.no)=CreateTree(2,0,(yyvsp[0].name),FIELD,NULL,CreateTree(1,0,(yyvsp[-2].name),FIELD,NULL,NULL,NULL,NULL),NULL,NULL);}
 #line 1688 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2119,7 +2119,7 @@ yyreduce:
 
   case 71:
 #line 392 "stage6.y" /* yacc.c:1646  */
-    {(yyval.no)=CreateTree(0,NULL1,strdup("intialize"),INIT,NULL,NULL,NULL,NULL);}
+    {(yyval.no) = CreateTree(0,NULL1,strdup("intialize"),INIT,NULL,NULL,NULL,NULL);}
 #line 2124 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2263,13 +2263,13 @@ yyreduce:
 
   case 95:
 #line 424 "stage6.y" /* yacc.c:1646  */
-    {(yyval.no)=CreateTree(0,0,NULL,CONNECTOR,NULL,(yyvsp[-2].no),CreateTree(0,INTE,NULL,ARGUMENT,NULL,(yyvsp[0].no),NULL,NULL),NULL);}
+    {(yyval.no)=CreateTree(0,0,NULL,CONNECTOR,NULL,(yyvsp[-2].no),CreateTree(0,(yyvsp[0].no)->type,(yyvsp[0].no)->varname,ARGUMENT,NULL,(yyvsp[0].no),NULL,NULL),NULL);}
 #line 2268 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 96:
 #line 425 "stage6.y" /* yacc.c:1646  */
-    {(yyval.no)=CreateTree(0,(yyvsp[0].no)->type,NULL,ARGUMENT,NULL,(yyvsp[0].no),NULL,NULL);}
+    {(yyval.no)=CreateTree(0,(yyvsp[0].no)->type,(yyvsp[0].no)->varname,ARGUMENT,NULL,(yyvsp[0].no),NULL,NULL);}
 #line 2274 "y.tab.c" /* yacc.c:1646  */
     break;
 

@@ -221,6 +221,8 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
                 }
                 // printf("%s %s \n", type, varname);
             }
+            else
+                type = fieldt->type->name;
         }
     }
     struct tnode *temp;
@@ -1171,55 +1173,33 @@ void help_viewReg(int *Reg)
 
 int arguementcheck(struct parameter *parameters, struct tnode *l)
 {
-    // printf("count");
+    int flag = 0;
     if (l == NULL && parameters == NULL)
-    {
-        // printf("\nzero");
         return 0;
-    }
-    if (l != NULL)
-    {
-        if (parameters == NULL)
-        {
-            // printf("\ncheck1");
-            return 1;
-        }
-    }
-    if (l == NULL)
-    {
-        if (parameters != NULL)
-        {
-            //printf("\ncheck2");
-            return 1;
-        }
-        else
-            return 0;
-    }
+    if ((l != NULL && parameters == NULL) || (l == NULL && parameters != NULL))
+        return 1;
     if (l->nodetype == CONNECTOR)
     {
-        // printf("\nconnector");
-        if (arguementcheck(parameters, l->right) == 1)
-            return 1;
-        else
-        {
-            parameters = parameters->prev;
-        }
-
-        if (arguementcheck(parameters, l->left) == 1)
-            return 1;
+        flag = arguementcheck(parameters, l->right);
+        if (flag == 1 || flag == 0)
+            return flag;
+        parameters = parameters->prev;
+        flag = arguementcheck(parameters, l->left);
+        if (flag == 1 || flag == 0)
+            return flag;
+        parameters = parameters->prev;
     }
     if (l->nodetype == ARGUMENT)
     {
-        //printf("\narg");
-        if (parameters == NULL)
-            return 1;
         if (strcmp(parameters->type, l->type))
+        {
+            printf("%s %s : %s %s", parameters->type, parameters->name, l->type, l->varname);
             return 1;
+        }
     }
-    if (parameters->prev == NULL)
+    if (parameters == NULL)
         return 0;
-    else
-        return 2;
+    return 2;
 }
 int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltable1)
 {

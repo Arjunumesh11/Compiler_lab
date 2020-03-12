@@ -16,6 +16,7 @@ int decltypeflag;
 struct labeltable LabelTable[No_labels];
 struct loop_counter *LOOP_COUNTER_HEAD = NULL, *LOOP_COUNTER_TEMP = NULL;
 struct symboltable *Symbol_Table = NULL, *temptable = NULL, *GLOBAL_TABLE = NULL;
+char *Cur_type = NULL;
 struct symboltablelist *LOCAL_TABLE = NULL, *PARAM_TABLE = NULL, *TEMP_tablelist = NULL;
 struct parameter *Temp_Parameter = NULL, *V_Parameter = NULL;
 struct Reg_counter *REG_COUNTER = NULL;
@@ -174,6 +175,7 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
     if (nodetype == GDECLARATION)
     {
         GLOBAL_TABLE = table;
+        //help_viewtable(table, 1);
     }
     if (nodetype == DECLARATION)
     {
@@ -213,7 +215,11 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
             {
                 //help_viewtypetable();
                 type = TLookup(fieldt->typename)->name;
-                printf("%s %s \n", type, varname);
+                if (type == NULL)
+                {
+                    printf("ERROR Undeclared variable : %s", fieldt->typename);
+                }
+                // printf("%s %s \n", type, varname);
             }
         }
     }
@@ -454,7 +460,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
     if (t->nodetype == WRITE0)
     {
         r1 = codeGen(t->left, targetfile, 0);
-        if (t->left->nodetype == VARIABLE)
+        if (t->left->nodetype == VARIABLE || t->left->nodetype == FIELD)
         {
             r2 = getReg(REG_COUNTER->Reg);
             fprintf(targetfile, " MOV R%d, \"Write\"\n", r2);
@@ -612,6 +618,14 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
     if (t->nodetype == VARIABLE)
     {
         struct symboltable *Symbol_Temp = NULL;
+        if (strcmp(t->varname, "NULL") == 0)
+        {
+
+            r2 = getReg(REG_COUNTER->Reg);
+            fprintf(targetfile, " MOV R%d,0\n", r2);
+            pos++;
+            return r2;
+        }
         if ((Symbol_Temp = LLookup(t->varname)) || (Symbol_Temp = PLookup(t->varname)))
         {
 
@@ -922,8 +936,157 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         REG_COUNTER = REG_COUNTER->prev;
         return 0;
     }
-}
+    if (t->nodetype == FIELD)
+    {
+        if (t->left == NULL)
+        {
 
+            struct symboltable *Symbol_Temp = NULL;
+            if ((Symbol_Temp = LLookup(t->varname)) || (Symbol_Temp = PLookup(t->varname)))
+            {
+
+                if (option == 1)
+                {
+                    r1 = Symbol_Temp->binding;
+                    r2 = getReg(REG_COUNTER->Reg);
+                    r3 = getReg(REG_COUNTER->Reg);
+                    fprintf(targetfile, " MOV R%d,BP\n", r3);
+                    pos++;
+                    fprintf(targetfile, " ADD R%d,%d\n", r3, r1);
+                    pos++;
+                    fprintf(targetfile, " MOV R%d,[R%d]\n", r2, r3);
+                    pos++;
+                    freeReg(REG_COUNTER->Reg);
+                }
+                if (option == 0)
+                {
+                    r1 = Symbol_Temp->binding;
+                    r2 = getReg(REG_COUNTER->Reg);
+                    fprintf(targetfile, " MOV R%d,BP\n", r2);
+                    pos++;
+                    fprintf(targetfile, " ADD R%d,%d\n", r2, r1);
+                    pos++;
+                }
+            }
+            else if (Symbol_Temp = GLookup(t->varname))
+            {
+                if (Symbol_Temp == NULL)
+                {
+                    printf("\nVariable Not declared : %s", t->varname);
+                    exit(0);
+                }
+                if (t->left == NULL)
+                {
+                    if (option == 1)
+                    {
+                        r1 = Symbol_Temp->binding;
+                        r2 = getReg(REG_COUNTER->Reg);
+                        fprintf(targetfile, " MOV R%d,[%d]\n", r2, r1);
+                        pos++;
+                    }
+                    if (option == 0)
+                    {
+                        r1 = Symbol_Temp->binding;
+                        r2 = getReg(REG_COUNTER->Reg);
+                        fprintf(targetfile, " MOV R%d,%d\n", r2, r1);
+                        pos++;
+                    }
+                }
+            }
+            Cur_type = strdup(Symbol_Temp->type);
+            return r2;
+        }
+        else
+        {
+            r2 = getReg(REG_COUNTER->Reg);
+            r1 = codeGen(t->left, targetfile, 1);
+            struct Typetable *Type_temp = TLookup(Cur_type);
+            struct Fieldlist *Field_temp = FLookup(Type_temp, t->varname);
+            if (Field_temp->type)
+                Cur_type = strdup(Field_temp->type->name);
+            fprintf(targetfile, " ADD R%d,%d\n", r1, Field_temp->fieldIndex);
+            pos++;
+            if (option == 1)
+            {
+                fprintf(targetfile, " MOV R%d,[R%d]\n", r2, r1);
+                pos++;
+                freeReg(REG_COUNTER->Reg);
+                return r2;
+            }
+            if (option == 0)
+            {
+                fprintf(targetfile, " MOV R%d,R%d\n", r2, r1);
+                pos++;
+                freeReg(REG_COUNTER->Reg);
+                return r2;
+            }
+        }
+    }
+    if (t->nodetype == ALOC)
+    {
+        memcpy(reg_temp, REG_COUNTER->Reg, sizeof(int) * 20);
+        pushReg(reg_temp, targetfile);
+        r2 = getReg(REG_COUNTER->Reg);
+        fprintf(targetfile, " MOV R19,\"Alloc\"\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " MOV R0,8\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R%d\n", r2);
+        pos++;
+        fprintf(targetfile, " CALL 0\n");
+        pos++;
+        fprintf(targetfile, " POP R%d\n", r2);
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        popReg(reg_temp, targetfile);
+        return r2;
+    }
+    if (t->nodetype == INIT)
+    {
+        memcpy(reg_temp, REG_COUNTER->Reg, sizeof(int) * 20);
+        pushReg(reg_temp, targetfile);
+        fprintf(targetfile, " MOV R19,\"intialize\"\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " CALL 0\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        popReg(reg_temp, targetfile);
+    }
+}
 int evaluate(struct tnode *t)
 {
     if (t == NULL)

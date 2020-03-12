@@ -122,6 +122,11 @@ FieldDeclList : FieldDeclList FieldDecl {
 											tempfieldlist=tempfieldlist->next;	
 											tempfieldlist->name=strdup(name);
 											tempfieldlist->type=TLookup(type_flag);
+											if(tempfield->type==NULL)
+											{
+												printf("ERROR TYPE not found %s",type_flag);
+												exit(0);
+											}
 											tempfieldlist->typename=strdup(type_flag);
 											
 											tempfieldlist->fieldIndex=Index;
@@ -155,6 +160,7 @@ GDecl  	     : Type GVarlist ';' {
 									temp_table=G_TABLE_temp;
 									while(temp_table)
 									{	
+										
 										temp_table->type=strdup($1);
 										temp_table=temp_table->prev;
 									}	
@@ -263,14 +269,14 @@ Slist : Slist Stmt   {$$ = CreateTree(0,0,NULL,CONNECTOR,NULL,$1,$2,NULL);}
 	  | Stmt 		{$$ = $1;}
 	  ;
 
-Stmt : InputStmt ';' {$$ = $1; }
-	 | OutputStmt ';'	 {$$ = $1; }
-	 | AsgStmt ';'		 {$$ = $1; }
-	 | Ifstmt ';'		 {$$ = $1; }
-	 | Whilestmt ';'    {$$ = $1; }
-	 | BREAK ';'		 {$$=CreateTree(0,0,NULL,BREAKST,NULL,NULL,NULL,NULL);}
-	 | CONTINUE ';'     {$$=CreateTree(0,0,NULL,CONTINUEST,NULL,NULL,NULL,NULL);}
-	 | Retstmt	{$$ = CreateTree(0,0,NULL,RETURNST,NULL,$1,NULL,NULL);}
+Stmt : InputStmt ';' 			{$$ = $1; }
+	 | OutputStmt ';'	 		{$$ = $1; }
+	 | AsgStmt ';'		 		{$$ = $1; }
+	 | Ifstmt ';'		 		{$$ = $1; }
+	 | Whilestmt ';'    		{$$ = $1; }
+	 | BREAK ';'		 		{$$=CreateTree(0,0,NULL,BREAKST,NULL,NULL,NULL,NULL);}
+	 | CONTINUE ';'     		{$$=CreateTree(0,0,NULL,CONTINUEST,NULL,NULL,NULL,NULL);}
+	 | Retstmt					{$$ = CreateTree(0,0,NULL,RETURNST,NULL,$1,NULL,NULL);}
 	 ;
 
 	 
@@ -325,6 +331,7 @@ Decl : Type Varlist	';'{
 						
 							while(temp_table)
 							{	
+							
 								temp_table->type=strdup($1);
 								temp_table=temp_table->prev;
 							}	
@@ -371,7 +378,8 @@ Varlist : Varlist','VAR
 	    ;
 
 InputStmt : READ '(' VAR ')' 	  	 		 {$$ = CreateTree(0,0,NULL,READ0,NULL,CreateTree(0,INTE,$3,VARIABLE,NULL,NULL,NULL,NULL),NULL,NULL);}
-		  | READ '(' VAR '[' expr ']' ')'		{$$ = CreateTree(0,0,NULL,READ0,NULL,CreateTree(0,0,$3,VARIABLE,NULL,$5,NULL,NULL),NULL,NULL);}
+		  | READ '(' VAR '[' expr ']' ')'	 {$$ = CreateTree(0,0,NULL,READ0,NULL,CreateTree(0,0,$3,VARIABLE,NULL,$5,NULL,NULL),NULL,NULL);}
+		  |  READ '(' Field ')' 	  	     {$$ = CreateTree(0,0,NULL,READ0,NULL,$3,NULL,NULL);}
 		  ;
 
 OutputStmt : WRITE '(' expr ')' 			 {$$ = CreateTree(0,0,NULL,WRITE0,NULL,$3,NULL,NULL);}
@@ -380,6 +388,9 @@ OutputStmt : WRITE '(' expr ')' 			 {$$ = CreateTree(0,0,NULL,WRITE0,NULL,$3,NUL
 AsgStmt : VAR EQUAL expr 	     			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,NULL,NULL,NULL),$3,NULL);}
       	| VAR '[' expr ']' EQUAL expr  		 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,$3,NULL,NULL),$6,NULL);}
 		| Field EQUAL expr					 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",$1,$3,NULL);}
+	 	| VAR EQUAL ALLOC '(' ')'			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,NULL,NULL,NULL),CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
+	 	| VAR EQUAL INTIALIZE '(' ')'		 {$$=CreateTree(0,NULL1,strdup("intialize"),INIT,NULL,NULL,NULL,NULL);}
+	 	| Field EQUAL ALLOC '(' ')'			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",$1,CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
 		;
 
 Ifstmt : IF '(' expr ')' THEN Slist ELSE Slist ENDIF  {$$ =  CreateTree(0,BOLE,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,$8,NULL),NULL);}
@@ -406,8 +417,6 @@ expr : expr PLUS expr		{ $$ = CreateTree(0,INTE,NULL,OPERATOR,"+",$1,$3,NULL);}
 	 | VAR 					{$$ = CreateTree(0,INTE,$1,VARIABLE,NULL,NULL,NULL,NULL);}
 	 | Field				{$$=$1;}
 	 | NULL0				{$$=CreateTree(0,NULL1,strdup(NULL1),VARIABLE,NULL,NULL,NULL,NULL);}
-	 | ALLOC '(' ')'		{$$=CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL);;}
-	 | INTIALIZE '(' ')'	{$$=CreateTree(0,NULL1,strdup("intialize"),INIT,NULL,NULL,NULL,NULL);;}
 	 ;
 arguments : argument {$$=$1;}
 		  | {$$=NULL;}

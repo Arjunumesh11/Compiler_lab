@@ -1,0 +1,35 @@
+
+class
+	linkedlist{
+				decl
+					
+					int length;
+					int getlength();
+					
+				enddecl
+		int getlength(){
+			begin
+				self.length=1078;
+				return self.length;
+			end
+			}
+	
+	}
+	endclass
+	
+	decl
+		linkedlist obj;
+	enddecl
+	
+	int main(){
+		decl
+			int x,y,z;
+			list a;
+		enddecl
+		begin
+			x=initialize();
+			obj=alloc();
+			write(obj.getlength());
+			return 1;
+		end
+	}

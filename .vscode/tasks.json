@@ -1,0 +1,82 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "yacc",
+            "group": "test",
+            "type": "shell",
+            "command": "yacc",
+            "options": {
+                "cwd": "${workspaceRoot}/stage_7"
+              },
+            "args": ["stage7.y","-d"]
+        },
+        {
+            "label": "lex",
+            "dependsOn":"yacc",
+            "group": "test",
+            "type": "shell",
+            "command":"lex",
+            "options": {
+                "cwd": "${workspaceRoot}/stage_7"
+              },
+            "args": ["stage7.l"]
+        },
+        {
+            "label": "compile",
+            "group": "test",
+            
+            "dependsOn":"lex",
+            "type": "shell",
+            "command":"gcc",
+            "options": {
+                "cwd": "${workspaceRoot}/stage_7"
+              },
+            "args": ["-fno-stack-protector","y.tab.c","lex.yy.c","exprtree.c","-g"]
+        },
+        {
+            "label": "run",
+            "group": "test",
+            "dependsOn":"compile",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/stage_7"
+              },
+            "command":"./a.out",
+            "args": ["input.txt"]
+        },
+        {
+            "label": "linker",
+            "dependsOn":"run",
+            "group": "test",
+            "options": {
+                "cwd": "${workspaceRoot}/stage_7"
+              },
+            "type": "shell",
+            "command":"./linker",
+        },
+        {
+          "label": "run",
+          "group": "build",
+          "type": "shell",
+          "options": {
+              "cwd": "${workspaceRoot}/stage_7"
+            },
+          "command":"./a.out",
+          "args": ["input.txt"]
+      },
+      {
+          "label": "linker",
+          "dependsOn":"run",
+          "group": "build",
+          "options": {
+              "cwd": "${workspaceRoot}/stage_7"
+            },
+          "type": "shell",
+          "command":"./linker",
+      }
+  
+    ]
+}

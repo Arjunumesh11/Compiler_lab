@@ -1,0 +1,19 @@
+
+
+decl
+enddecl
+
+
+
+int main()
+{
+ decl
+  int b,c;
+ enddecl
+
+ begin
+  c=fun();
+  return 0;
+ end
+}
+

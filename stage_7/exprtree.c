@@ -653,7 +653,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             pos++;
             freeReg(REG_COUNTER->Reg);
         }
-        if ((t->left->nodetype == NUMBER) || (t->left->nodetype == OPERATOR) || (t->left->nodetype == STRI) || t->left->nodetype == CFUNCALL)
+        else if ((t->left->nodetype == NUMBER) || (t->left->nodetype == OPERATOR) || (t->left->nodetype == STRI) || t->left->nodetype == CFUNCALL)
         {
             fprintf(targetfile, " MOV R0,R%d\n", r1);
             pos++;
@@ -691,6 +691,11 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             pos++;
             fprintf(targetfile, " POP R1\n");
             pos++;
+        }
+        else
+        {
+            printf("ERROR WRITE()");
+            exit(0);
         }
         freeReg(REG_COUNTER->Reg);
         return 0;
@@ -1036,10 +1041,10 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         memcpy(reg_temp, REG_COUNTER->Reg, sizeof(int) * 20);
         //help_viewReg(reg_temp);
         pushReg(reg_temp, targetfile);
-        junk = codeGen(t->right, targetfile, 1);
+        junk = codeGen(t->right, targetfile, 1); //calling arguments pushing args
         r1 = getReg(REG_COUNTER->Reg);
-        r1 = codeGen(t->left, targetfile, 1);
-        fprintf(targetfile, " PUSH R%d\n", r1);
+        r1 = codeGen(t->left, targetfile, 1);   //calling field reducer returns the
+        fprintf(targetfile, " PUSH R%d\n", r1); //reference value in object
         pos++;
         fprintf(targetfile, " PUSH R%d\n", r1);
         pos++;
@@ -1316,6 +1321,11 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         pos++;
         popReg(reg_temp, targetfile);
     }
+    if (t->nodetype == BREAKP)
+    {
+        fprintf(targetfile, " BRKP\n");
+        pos++;
+    }
 }
 int evaluate(struct tnode *t)
 {
@@ -1525,6 +1535,11 @@ void help_viewclasstable()
     }
     printf("END\n\n");
 }
+void help_addbreak(FILE *targetfile)
+{
+    fprintf(targetfile, "   BRKP");
+    pos++;
+}
 void TypeTableCreate()
 {
     struct Typetable *temp_TYPE_TABLE;
@@ -1649,6 +1664,7 @@ void Class_Finstall(struct Classtable *cptr, char *typename, char *name)
         printf("CERROR Type not identified : %s", typename);
         exit(0);
     }
+    temp->fieldIndex = cptr->Fieldcount;
     cptr->Fieldcount++;
     if (cptr->Memberfield == NULL)
         cptr->Memberfield = temp;

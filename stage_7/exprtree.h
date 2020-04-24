@@ -39,6 +39,7 @@ extern int declflag, decltypeflag;
 #define ALOC 21
 #define INIT 22
 #define CFUNCALL 23
+#define BREAKP 24
 
 #define No_labels 100
 #define start_adress 2102
@@ -167,6 +168,7 @@ int Lallocatemem(int n, FILE *targetfile);
 
 void help_viewtable(struct symboltable *table, int scope);
 void help_viewReg(int *Reg);
+void help_addbreak();
 int arguementcheck(struct parameter *parameters, struct tnode *l);
 int arguementcheck2(struct parameter *parameter1, struct symboltable *parameter2);
 void help_viewtypetable();

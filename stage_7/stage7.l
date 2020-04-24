@@ -41,7 +41,7 @@
 "endclass"	{return ENDCLASS;}
 "extends"   {return Extends;}
 "self"		{yylval.name=strdup("self");return SELF;}
-
+"BRKP"      {return BRKP;}
 "+"	{return PLUS;}
 "-"	{return MINUS;}
 "*"	{return MUL;}

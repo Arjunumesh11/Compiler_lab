@@ -1604,7 +1604,7 @@ yyreduce:
 
   case 21:
 #line 75 "stage7.y" /* yacc.c:1646  */
-    {Class_Minstall(Cptr,(yyvsp[-4].name),(yyvsp[-5].name),V_Parameter); V_Parameter=NULL;}
+    {struct parameter* temp=V_Parameter;while(temp){printf("Minstall yacc %s %s",Cptr->Name,temp->name);temp=temp->prev;}Class_Minstall(Cptr,(yyvsp[-4].name),(yyvsp[-5].name),V_Parameter); V_Parameter=NULL;}
 #line 1609 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -1954,7 +1954,7 @@ yyreduce:
   case 56:
 #line 287 "stage7.y" /* yacc.c:1646  */
     {
-				 				Temp_Parameter->prev=V_Parameter;
+				 				Temp_Parameter->prev=NULL;
 								V_Parameter=Temp_Parameter;
 
 			 				}

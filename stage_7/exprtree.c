@@ -1041,11 +1041,11 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         memcpy(reg_temp, REG_COUNTER->Reg, sizeof(int) * 20);
         //help_viewReg(reg_temp);
         pushReg(reg_temp, targetfile);
-        junk = codeGen(t->right, targetfile, 1); //calling arguments pushing args
         r1 = getReg(REG_COUNTER->Reg);
         r1 = codeGen(t->left, targetfile, 1);   //calling field reducer returns the
         fprintf(targetfile, " PUSH R%d\n", r1); //reference value in object
         pos++;
+        junk = codeGen(t->right, targetfile, 1); //calling arguments pushing args
         fprintf(targetfile, " PUSH R%d\n", r1);
         pos++;
         struct Memberfunclist *func_info = Class_Mlookup(t->cptr, t->varname);
@@ -1450,7 +1450,8 @@ int arguementcheck(struct parameter *parameters, struct tnode *l)
 }
 int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltable1)
 {
-    //help_viewtable(symboltable1, 2);
+    // printf("arg check \n");
+    // help_viewtable(symboltable1, 2);
     while (parameter1 || symboltable1)
     {
         if (symboltable1)
@@ -1465,6 +1466,7 @@ int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltabl
         }
         if ((symboltable1 == NULL) && (parameter1 != NULL))
         {
+            printf("para ; %s", parameter1->name);
             printf("Number mismatch 1");
             return 1;
         }
@@ -1486,9 +1488,12 @@ int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltabl
                     return 1;
                 }
             }
+            printf("para1 ; %s", parameter1->name);
 
             parameter1 = parameter1->prev;
             symboltable1 = symboltable1->prev;
+            if (parameter1)
+                printf("para2 ; %s", parameter1->name);
         }
     }
     return 0;

@@ -1,74 +1,66 @@
-type
-	list{
-		int data;
-		list next;
-		}
-endtype
+
 	
-class
-	linkedlist{
-				decl
-					list head;
-					list tail;
-					int length;
-					int getlength();
-					int init();
-					list insert(int data);
-				enddecl
-		int getlength(){
-			begin
-				return self.length;
-			end
-			}
-	int init(){
-			
-			begin
-				self.head=null;
-				self.tail=null;
-				self.length=0;
-			return 1;
-			end
-			}
-	list insert(int data){
+	class
+		fact{
 			decl
-				list temp;
+				int x;
+				int findfactorial(int k);
+			enddecl
+			int findfactorial(int k){
+			decl
+				int p;
 			enddecl
 			begin
-				temp=alloc();
-				temp.data=data;
-				temp.next=null;
-				BRKP;
-				if(self.head== null)then
-					self.head=temp;
-					self.tail=temp;
+				if(k<=1)then
+				p=1;
 				else
-					self.tail.next=temp;
-					self.tail=temp;
+				p=k*self.findfactorial(k-1);
 				endif;
-				self.length=self.length+1;
-				return temp;
+				return p;
 			end
-	}
-	
+			}
+		}
+		
+	testfactsum{
+		decl
+			fact o1;
+			int testfun(int n);
+		enddecl
+		int testfun(int n){
+			decl
+				int sum;
+			enddecl
+			begin
+				self.o1=alloc();
+				sum=0;
+				while(n!=0)do
+					sum=sum+self.o1.findfactorial(n);
+					n=n-1;
+				endwhile;
+				return sum;
+			end
+			
+		}
 	}
 	endclass
-	
+
 	decl
-		linkedlist obj;
+		testfactsum obj;
 	enddecl
-	
+
 	int main(){
 		decl
-			int x,y,z;
-			list a;
+			int x,n;
 		enddecl
 		begin
 			x=initialize();
 			obj=alloc();
-			x=obj.init();
-				read(y);
-				a=obj.insert(y);
-			write(obj.getlength());
+			read(n);
+			write(obj.testfun(n));
 			return 1;
 		end
+	
+	
+	
 	}
+

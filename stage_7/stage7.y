@@ -72,7 +72,7 @@ Fld         : Type VAR ';'		{Class_Finstall(Cptr,$1,$2);} //Installing the field
 MethodDecl : MethodDecl MDecl 
 	  	   | MDecl 
 		   ;
-MDecl      : Type VAR '(' Parameters ')' ';' {struct parameter* temp=V_Parameter;while(temp){printf("Minstall yacc %s %s",Cptr->Name,temp->name);temp=temp->prev;}Class_Minstall(Cptr,$2,$1,V_Parameter); V_Parameter=NULL;}
+MDecl      : Type VAR '(' Parameters ')' ';' {Class_Minstall(Cptr,$2,$1,V_Parameter); V_Parameter=NULL;}
    		   ;
 MethodDefns : MethodDefns FDef {codeGen($2, target_file, 0);}
             | FDef			   {codeGen($1, target_file, 0);}

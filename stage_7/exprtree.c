@@ -65,9 +65,7 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
     struct Classtable *class_temp = NULL;
     if (nodetype == OPERATOR)
     {
-        // help_viewtypetable();
 
-        //printf("%s", r->type);
         if (r == NULL)
         {
             if (l->type != INTE)
@@ -155,7 +153,6 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
         struct Memberfunclist *Mfieldt;
         if (class_temp)
         {
-            // help_viewclasstable();
             Mfieldt = Class_Mlookup(class_temp, varname);
             if (Mfieldt == NULL)
             {
@@ -239,7 +236,7 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
         {
             if (para_temp != NULL)
             {
-                printf("\nERROR CALL argument unmatched in %s", varname);
+                printf("\nERROR CALL argument unmatched in %s\n", varname);
                 exit(0);
             }
         }
@@ -247,7 +244,7 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
         {
             if (arguementcheck2(para_temp, l->Gsymbol))
             {
-                printf("\nERROR Definition argument unmatched in %s", varname);
+                printf("\nERROR Definition argument unmatched in %s\n", varname);
                 exit(0);
             }
         }
@@ -255,7 +252,6 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
     if (nodetype == GDECLARATION)
     {
         GLOBAL_TABLE = table;
-        //help_viewtable(table, 1);
     }
     if (nodetype == DECLARATION)
     {
@@ -291,14 +287,12 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
     }
     if (nodetype == FIELD)
     {
-        // help_viewtypetable();
         if (l == NULL)
         {
             struct symboltable *Symbol_Temp = NULL;
             if (strcmp(varname, "self") == 0)
             {
-                // printf("test createtree field self");
-                //  help_viewclasstable();
+
                 if (Current_class)
                     type = strdup(Current_class->Name);
                 else
@@ -341,7 +335,6 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
                 fieldt = FLookup(typet, varname);
                 if (fieldt->type == NULL)
                 {
-                    //help_viewtypetable();
                     type = strdup(TLookup(fieldt->typename)->name);
                     if (type == NULL)
                     {
@@ -355,7 +348,6 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
             }
             else if (class_temp)
             {
-                //help_viewclasstable();
                 fieldt = Class_Flookup(class_temp, varname);
                 if (fieldt == NULL)
                 {
@@ -976,7 +968,6 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
     if (t->nodetype == GDECLARATION)
     {
 
-        //help_viewtable(GLOBAL_TABLE, 1);
         temptable = t->Gsymbol;
         while (temptable)
         {
@@ -998,7 +989,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             temptable = temptable->prev;
         }
         paramem = -3;
-        help_viewtable(PARAM_TABLE->val, 2);
+        //  help_viewtable(PARAM_TABLE->val, 2);
         return 0;
     }
     if (t->nodetype == ARGUMENT)
@@ -1450,8 +1441,7 @@ int arguementcheck(struct parameter *parameters, struct tnode *l)
 }
 int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltable1)
 {
-    // printf("arg check \n");
-    // help_viewtable(symboltable1, 2);
+
     while (parameter1 || symboltable1)
     {
         if (symboltable1)
@@ -1461,13 +1451,14 @@ int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltabl
         }
         if ((parameter1 == NULL) && (symboltable1 != NULL))
         {
-            printf("Number mismatch 2");
+            printf("para : ( %s )\n", symboltable1->name);
+            printf("mismatch_type : 2");
             return 1;
         }
         if ((symboltable1 == NULL) && (parameter1 != NULL))
         {
-            printf("para ; %s", parameter1->name);
-            printf("Number mismatch 1");
+            printf("para : ( %s )\n", parameter1->name);
+            printf(" mismatch_type :  1");
             return 1;
         }
         if (symboltable1)
@@ -1488,12 +1479,9 @@ int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltabl
                     return 1;
                 }
             }
-            printf("para1 ; %s", parameter1->name);
 
             parameter1 = parameter1->prev;
             symboltable1 = symboltable1->prev;
-            if (parameter1)
-                printf("para2 ; %s", parameter1->name);
         }
     }
     return 0;

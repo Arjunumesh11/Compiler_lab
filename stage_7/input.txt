@@ -4,6 +4,7 @@
 		fact{
 			decl
 				int x;
+				int x;
 				int findfactorial(int k);
 			enddecl
 			int findfactorial(int k){

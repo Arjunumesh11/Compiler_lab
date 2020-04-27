@@ -1,67 +1,91 @@
-
+type
+	list{
+		int data;
+		list next;
+		}
+endtype
 	
-	class
-		fact{
-			decl
-				int x;
-				int x;
-				int findfactorial(int k);
-			enddecl
-			int findfactorial(int k){
-			decl
-				int p;
-			enddecl
+class
+	linkedlist{
+				decl
+					list head;
+					list tail;
+					int length;
+					int getlength();
+					int init();
+					list insert(int data);
+					int printlinkedlist();
+				enddecl
+		int getlength(){
 			begin
-				if(k<=1)then
-				p=1;
-				else
-				p=k*self.findfactorial(k-1);
-				endif;
-				return p;
+				return self.length;
 			end
 			}
-		}
-		
-	testfactsum{
-		decl
-			fact o1;
-			int testfun(int n);
-		enddecl
-		int testfun(int n){
+	int init(){
+			
+			begin
+				self.head=null;
+				self.tail=null;
+				self.length=0;
+			return 1;
+			end
+			}
+	list insert(int data){
 			decl
-				int sum;
+				list temp;
 			enddecl
 			begin
-				self.o1=alloc();
-				sum=0;
-				while(n!=0)do
-					sum=sum+self.o1.findfactorial(n);
-					n=n-1;
-				endwhile;
-				return sum;
+				temp=alloc();
+				temp.data=data;
+				temp.next=null;
+				if(self.head== null)then
+					self.head=temp;
+					self.tail=temp;
+				else
+					self.tail.next=temp;
+					self.tail=temp;
+				endif;
+				self.length=self.length+1;
+				return temp;
 			end
-			
+	}
+	int printlinkedlist(){
+		decl
+			list temp;
+		enddecl
+		begin
+			temp=self.head;
+			while(temp!= null)do
+				write(temp.data);
+				temp=temp.next;
+			endwhile;
+			return 1;
+		end
 		}
 	}
 	endclass
-
+	
 	decl
-		testfactsum obj;
+		linkedlist obj;
 	enddecl
-
+	
 	int main(){
 		decl
-			int x,n;
+			int x,y,z;
+			list a;
 		enddecl
 		begin
 			x=initialize();
 			obj=alloc();
-			read(n);
-			write(obj.testfun(n));
+			x=obj.init();
+			read(x);
+			while(x!=0)do
+				read(y);
+				a=obj.insert(y);
+				x=x-1;
+			endwhile;
+			write(obj.getlength());
+			x=obj.printlinkedlist();
 			return 1;
 		end
-	
-	
-	
 	}
-

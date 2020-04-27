@@ -1698,3 +1698,39 @@ struct Fieldlist *Class_Flookup(struct Classtable *Ctype, char *Name)
     }
     return NULL;
 }
+void declaration_typeupdate(char *type, struct symboltable *table)
+{
+    struct symboltable *temptable = table;
+    while (temptable)
+    {
+        temptable->type = strdup(type);
+        temptable = temptable->prev;
+    }
+}
+struct symboltable *declaration_addvar(char *name, int size, struct symboltable *table, struct parameter *paramlist, int label)
+{
+    struct symboltable *temptable = (struct symboltable *)malloc(sizeof(struct symboltable));
+    temptable->name = strdup(name);
+    temptable->size = 1;
+    temptable->prev = table;
+    temptable->flabel = label;
+    temptable->paramlist = paramlist;
+    return temptable;
+}
+struct symboltable *declaration_addentry(struct symboltable *table, struct symboltable *entry)
+{
+    struct symboltable *temptable = table;
+    if (table == NULL)
+    {
+        table = entry;
+    }
+    else
+    {
+        while (temptable->prev)
+        {
+            temptable = temptable->prev;
+        }
+        temptable->prev = entry;
+    }
+    return table;
+}

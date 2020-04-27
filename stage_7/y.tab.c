@@ -538,16 +538,16 @@ static const yytype_uint16 yyrline[] =
 {
        0,    31,    31,    32,    33,    35,    37,    38,    41,    43,
       44,    46,    47,    49,    51,    65,    67,    68,    70,    72,
-      73,    75,    77,    78,    80,    82,    93,    96,   113,   130,
-     131,   134,   143,   155,   158,   174,   191,   193,   194,   195,
-     197,   198,   199,   201,   214,   222,   230,   241,   249,   257,
-     270,   271,   272,   275,   280,   282,   287,   293,   307,   308,
-     309,   312,   313,   316,   317,   318,   319,   320,   321,   322,
-     323,   324,   328,   338,   339,   341,   358,   376,   390,   391,
-     392,   394,   402,   410,   417,   426,   427,   428,   431,   434,
-     435,   436,   437,   438,   439,   442,   443,   446,   449,   450,
-     451,   452,   453,   454,   455,   456,   457,   458,   459,   460,
-     461,   462,   463,   464,   465,   466,   468,   469,   471,   472
+      73,    75,    77,    78,    80,    82,    88,    91,    96,   101,
+     102,   105,   114,   126,   129,   145,   162,   164,   165,   166,
+     168,   169,   170,   172,   174,   175,   179,   184,   188,   192,
+     199,   200,   201,   204,   209,   211,   216,   222,   236,   237,
+     238,   241,   242,   245,   246,   247,   248,   249,   250,   251,
+     252,   253,   257,   262,   263,   265,   270,   275,   279,   280,
+     281,   283,   284,   285,   286,   289,   290,   291,   294,   297,
+     298,   299,   300,   301,   302,   305,   306,   309,   312,   313,
+     314,   315,   316,   317,   318,   319,   320,   321,   322,   323,
+     324,   325,   326,   327,   328,   329,   331,   332,   334,   335
 };
 #endif
 
@@ -1629,75 +1629,46 @@ yyreduce:
   case 25:
 #line 82 "stage7.y" /* yacc.c:1646  */
     { 
-										G_TABLE_temp=G_TABLE;
-										while(G_TABLE_temp)
-										{
-											G_TABLE_temp=G_TABLE_temp->prev;
-										}
 										(yyval.no)=CreateTree(0,0,NULL,GDECLARATION,NULL,NULL,NULL,G_TABLE);
 										codeGen((yyval.no), target_file, 0);
 										G_TABLE=NULL;
 										G_TABLE_temp=NULL;
 									  }
-#line 1643 "y.tab.c" /* yacc.c:1646  */
+#line 1638 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 93 "stage7.y" /* yacc.c:1646  */
+#line 88 "stage7.y" /* yacc.c:1646  */
     { (yyval.no)=CreateTree(0,0,NULL,GDECLARATION,NULL,NULL,NULL,NULL);}
-#line 1649 "y.tab.c" /* yacc.c:1646  */
+#line 1644 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 97 "stage7.y" /* yacc.c:1646  */
+#line 92 "stage7.y" /* yacc.c:1646  */
     {
-											temp_table=G_TABLE;
-											if(G_TABLE==NULL)
-											{
-												G_TABLE=G_TABLE_temp;
-											}
-											else
-											{
-												while(temp_table->prev)
-												{
-													temp_table=temp_table->prev;
-												}
-												temp_table->prev=G_TABLE_temp;
-											}
+											G_TABLE= declaration_addentry(G_TABLE,G_TABLE_temp);
 											G_TABLE_temp=NULL;
 										}
-#line 1670 "y.tab.c" /* yacc.c:1646  */
+#line 1653 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 113 "stage7.y" /* yacc.c:1646  */
+#line 96 "stage7.y" /* yacc.c:1646  */
     {
-											temp_table=G_TABLE;
-											if(G_TABLE==NULL)
-											{
-												G_TABLE=G_TABLE_temp;
-											}
-											else
-											{
-												while(temp_table->prev)
-												{
-													temp_table=temp_table->prev;
-												}
-												temp_table->prev=G_TABLE_temp;
-											}
+											G_TABLE= declaration_addentry(G_TABLE,G_TABLE_temp);
 											G_TABLE_temp=NULL;
 										}
-#line 1691 "y.tab.c" /* yacc.c:1646  */
+#line 1662 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 130 "stage7.y" /* yacc.c:1646  */
+#line 101 "stage7.y" /* yacc.c:1646  */
     {}
-#line 1697 "y.tab.c" /* yacc.c:1646  */
+#line 1668 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 134 "stage7.y" /* yacc.c:1646  */
+#line 105 "stage7.y" /* yacc.c:1646  */
     {	
 											temptypetable=TYPE_TABLE;
 				  							while(temptypetable->next)
@@ -1707,11 +1678,11 @@ yyreduce:
 											temptypetable->next=TInstall(name,0,tempfield);
 											tempfield=NULL;
 										}
-#line 1711 "y.tab.c" /* yacc.c:1646  */
+#line 1682 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 143 "stage7.y" /* yacc.c:1646  */
+#line 114 "stage7.y" /* yacc.c:1646  */
     {
 				  							
 											temptypetable=TYPE_TABLE;
@@ -1722,17 +1693,17 @@ yyreduce:
 											temptypetable->next=TInstall(name,0,tempfield);
 											tempfield=NULL;
 			  							}
-#line 1726 "y.tab.c" /* yacc.c:1646  */
+#line 1697 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 155 "stage7.y" /* yacc.c:1646  */
+#line 126 "stage7.y" /* yacc.c:1646  */
     {name=strdup((yyvsp[-3].name));Index=0;}
-#line 1732 "y.tab.c" /* yacc.c:1646  */
+#line 1703 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 158 "stage7.y" /* yacc.c:1646  */
+#line 129 "stage7.y" /* yacc.c:1646  */
     {
 											tempfieldlist->next=(struct Fieldlist*)malloc(sizeof(struct Fieldlist));
 											tempfieldlist=tempfieldlist->next;	
@@ -1749,11 +1720,11 @@ yyreduce:
 											name=NULL;type_flag=NULL;
 											Index++;
 										}
-#line 1753 "y.tab.c" /* yacc.c:1646  */
+#line 1724 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 174 "stage7.y" /* yacc.c:1646  */
+#line 145 "stage7.y" /* yacc.c:1646  */
     {	
 				  							tempfield=(struct Fieldlist*)malloc(sizeof(struct Fieldlist));
 											tempfield->name=strdup(name);
@@ -1769,200 +1740,160 @@ yyreduce:
 											name=NULL;type_flag=NULL; 
 											Index++;
 										}
-#line 1773 "y.tab.c" /* yacc.c:1646  */
+#line 1744 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 191 "stage7.y" /* yacc.c:1646  */
+#line 162 "stage7.y" /* yacc.c:1646  */
     {name=strdup((yyvsp[-1].name));type_flag=strdup((yyvsp[-2].name));}
-#line 1779 "y.tab.c" /* yacc.c:1646  */
+#line 1750 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 193 "stage7.y" /* yacc.c:1646  */
+#line 164 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(3,0,(yyvsp[0].name),FIELD,NULL,(yyvsp[-2].no),NULL,NULL);}
-#line 1785 "y.tab.c" /* yacc.c:1646  */
+#line 1756 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 194 "stage7.y" /* yacc.c:1646  */
+#line 165 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(2,0,(yyvsp[0].name),FIELD,NULL,CreateTree(1,0,(yyvsp[-2].name),FIELD,NULL,NULL,NULL,NULL),NULL,NULL);}
-#line 1791 "y.tab.c" /* yacc.c:1646  */
+#line 1762 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 195 "stage7.y" /* yacc.c:1646  */
+#line 166 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(2,0,(yyvsp[0].name),FIELD,NULL,CreateTree(1,0,(yyvsp[-2].name),FIELD,NULL,NULL,NULL,NULL),NULL,NULL);}
-#line 1797 "y.tab.c" /* yacc.c:1646  */
+#line 1768 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 197 "stage7.y" /* yacc.c:1646  */
+#line 168 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(2,0,(yyvsp[-3].name),CFUNCALL,NULL,CreateTree(1,0,(yyvsp[-5].name),FIELD,NULL,NULL,NULL,NULL),(yyvsp[-1].no),NULL);}
-#line 1803 "y.tab.c" /* yacc.c:1646  */
+#line 1774 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 198 "stage7.y" /* yacc.c:1646  */
+#line 169 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(2,0,(yyvsp[-3].name),CFUNCALL,NULL,CreateTree(1,0,(yyvsp[-5].name),FIELD,NULL,NULL,NULL,NULL),(yyvsp[-1].no),NULL);}
-#line 1809 "y.tab.c" /* yacc.c:1646  */
+#line 1780 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 199 "stage7.y" /* yacc.c:1646  */
+#line 170 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,INTE,(yyvsp[-3].name),CFUNCALL,NULL,(yyvsp[-5].no),(yyvsp[-1].no),NULL);}
-#line 1815 "y.tab.c" /* yacc.c:1646  */
+#line 1786 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 201 "stage7.y" /* yacc.c:1646  */
-    {
-								
-									temp_table=G_TABLE_temp;
-									while(temp_table)
-									{	
-				
-										temp_table->type=strdup((yyvsp[-2].name));
-										temp_table=temp_table->prev;
-									}	
-															
-								}
-#line 1831 "y.tab.c" /* yacc.c:1646  */
+#line 172 "stage7.y" /* yacc.c:1646  */
+    {	declaration_typeupdate((yyvsp[-2].name),G_TABLE_temp); }
+#line 1792 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 215 "stage7.y" /* yacc.c:1646  */
-    {
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[0].name));
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
-#line 1843 "y.tab.c" /* yacc.c:1646  */
+#line 174 "stage7.y" /* yacc.c:1646  */
+    { G_TABLE_temp=declaration_addvar((yyvsp[0].name),1,G_TABLE_temp,NULL,0);}
+#line 1798 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 223 "stage7.y" /* yacc.c:1646  */
+#line 176 "stage7.y" /* yacc.c:1646  */
     {
-							temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[-3].name));
-							temp_table->size=(yyvsp[-1].no)->val;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
+						G_TABLE_temp=declaration_addvar((yyvsp[-3].name),(yyvsp[-1].no)->val,G_TABLE_temp,NULL,0);	 
 						}
-#line 1855 "y.tab.c" /* yacc.c:1646  */
+#line 1806 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 231 "stage7.y" /* yacc.c:1646  */
+#line 180 "stage7.y" /* yacc.c:1646  */
     {
-							temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[-3].name));
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							temp_table->paramlist=V_Parameter;
-							temp_table->flabel=getlabel();
-							G_TABLE_temp=temp_table;
+							G_TABLE_temp=declaration_addvar((yyvsp[-3].name),1,G_TABLE_temp,V_Parameter,getlabel());	 
 							V_Parameter=NULL; 	
 						}
-#line 1870 "y.tab.c" /* yacc.c:1646  */
+#line 1815 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 242 "stage7.y" /* yacc.c:1646  */
+#line 185 "stage7.y" /* yacc.c:1646  */
     {
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[0].name));
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
+			 				G_TABLE_temp=declaration_addvar((yyvsp[0].name),1,G_TABLE_temp,NULL,0);
 						}
-#line 1882 "y.tab.c" /* yacc.c:1646  */
+#line 1823 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 250 "stage7.y" /* yacc.c:1646  */
+#line 189 "stage7.y" /* yacc.c:1646  */
     {
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[-3].name));
-							temp_table->size=(yyvsp[-1].no)->val;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
+			 				G_TABLE_temp=declaration_addvar((yyvsp[-3].name),(yyvsp[-1].no)->val,G_TABLE_temp,NULL,0);
 						}
-#line 1894 "y.tab.c" /* yacc.c:1646  */
+#line 1831 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 258 "stage7.y" /* yacc.c:1646  */
+#line 193 "stage7.y" /* yacc.c:1646  */
     {
-							temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[-3].name));
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							temp_table->paramlist=V_Parameter;
-							temp_table->flabel=getlabel();
-							G_TABLE_temp=temp_table;
-							V_Parameter=NULL;
+							G_TABLE_temp=declaration_addvar((yyvsp[-3].name),1,G_TABLE_temp,V_Parameter,getlabel());	 
+							V_Parameter=NULL; 	
 						}
-#line 1909 "y.tab.c" /* yacc.c:1646  */
+#line 1840 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 270 "stage7.y" /* yacc.c:1646  */
+#line 199 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=NULL;}
-#line 1915 "y.tab.c" /* yacc.c:1646  */
+#line 1846 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 271 "stage7.y" /* yacc.c:1646  */
+#line 200 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(0,0,NULL,CONNECTOR,NULL,(yyvsp[-2].no),(yyvsp[-1].no),NULL);}
-#line 1921 "y.tab.c" /* yacc.c:1646  */
+#line 1852 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 272 "stage7.y" /* yacc.c:1646  */
+#line 201 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(0,0,NULL,CONNECTOR,NULL,(yyvsp[-1].no),NULL,NULL);}
-#line 1927 "y.tab.c" /* yacc.c:1646  */
+#line 1858 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 275 "stage7.y" /* yacc.c:1646  */
+#line 204 "stage7.y" /* yacc.c:1646  */
     {
 								decltypeflag=0;
 								(yyval.no)=CreateTree(0,0,NULL,PDECLARATION,NULL,NULL,NULL,G_PARATABLE);
 								G_PARATABLE=NULL;
 							}
-#line 1937 "y.tab.c" /* yacc.c:1646  */
+#line 1868 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 280 "stage7.y" /* yacc.c:1646  */
+#line 209 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(0,0,NULL,PDECLARATION,NULL,NULL,NULL,NULL);}
-#line 1943 "y.tab.c" /* yacc.c:1646  */
+#line 1874 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 283 "stage7.y" /* yacc.c:1646  */
+#line 212 "stage7.y" /* yacc.c:1646  */
     {
 				 				Temp_Parameter->prev=V_Parameter;
 								V_Parameter=Temp_Parameter;
 							}
-#line 1952 "y.tab.c" /* yacc.c:1646  */
+#line 1883 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 287 "stage7.y" /* yacc.c:1646  */
+#line 216 "stage7.y" /* yacc.c:1646  */
     {
 				 				Temp_Parameter->prev=NULL;
 								V_Parameter=Temp_Parameter;
 
 			 				}
-#line 1962 "y.tab.c" /* yacc.c:1646  */
+#line 1893 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 294 "stage7.y" /* yacc.c:1646  */
+#line 223 "stage7.y" /* yacc.c:1646  */
     {
 							Temp_Parameter=(struct parameter*)malloc(sizeof(struct parameter));
 							Temp_Parameter->type=strdup((yyvsp[-1].name));
@@ -1975,457 +1906,393 @@ yyreduce:
 							temp_paratable->prev=G_PARATABLE;
 							G_PARATABLE=temp_paratable;
 						}
-#line 1979 "y.tab.c" /* yacc.c:1646  */
+#line 1910 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 307 "stage7.y" /* yacc.c:1646  */
+#line 236 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,0,NULL,RETURNST,NULL,(yyvsp[-1].no),NULL,NULL);}
-#line 1985 "y.tab.c" /* yacc.c:1646  */
+#line 1916 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 308 "stage7.y" /* yacc.c:1646  */
+#line 237 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,0,NULL,RETURNST,NULL,CreateTree(0,INTE,(yyvsp[-1].name),VARIABLE,NULL,NULL,NULL,NULL),NULL,NULL);}
-#line 1991 "y.tab.c" /* yacc.c:1646  */
+#line 1922 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 309 "stage7.y" /* yacc.c:1646  */
+#line 238 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,0,NULL,RETURNST,NULL,(yyvsp[-1].no),NULL,NULL);}
-#line 1997 "y.tab.c" /* yacc.c:1646  */
+#line 1928 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 312 "stage7.y" /* yacc.c:1646  */
+#line 241 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,0,NULL,CONNECTOR,NULL,(yyvsp[-1].no),(yyvsp[0].no),NULL);}
-#line 2003 "y.tab.c" /* yacc.c:1646  */
+#line 1934 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 313 "stage7.y" /* yacc.c:1646  */
+#line 242 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[0].no);}
-#line 2009 "y.tab.c" /* yacc.c:1646  */
+#line 1940 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 316 "stage7.y" /* yacc.c:1646  */
+#line 245 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[-1].no); }
-#line 2015 "y.tab.c" /* yacc.c:1646  */
+#line 1946 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 317 "stage7.y" /* yacc.c:1646  */
+#line 246 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[-1].no); }
-#line 2021 "y.tab.c" /* yacc.c:1646  */
+#line 1952 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 318 "stage7.y" /* yacc.c:1646  */
+#line 247 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[-1].no); }
-#line 2027 "y.tab.c" /* yacc.c:1646  */
+#line 1958 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 319 "stage7.y" /* yacc.c:1646  */
+#line 248 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[-1].no); }
-#line 2033 "y.tab.c" /* yacc.c:1646  */
+#line 1964 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 320 "stage7.y" /* yacc.c:1646  */
+#line 249 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[-1].no); }
-#line 2039 "y.tab.c" /* yacc.c:1646  */
+#line 1970 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 321 "stage7.y" /* yacc.c:1646  */
+#line 250 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(0,0,NULL,BREAKST,NULL,NULL,NULL,NULL);}
-#line 2045 "y.tab.c" /* yacc.c:1646  */
+#line 1976 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 322 "stage7.y" /* yacc.c:1646  */
+#line 251 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(0,0,NULL,CONTINUEST,NULL,NULL,NULL,NULL);}
-#line 2051 "y.tab.c" /* yacc.c:1646  */
+#line 1982 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 323 "stage7.y" /* yacc.c:1646  */
+#line 252 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,0,NULL,RETURNST,NULL,(yyvsp[0].no),NULL,NULL);}
-#line 2057 "y.tab.c" /* yacc.c:1646  */
+#line 1988 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 324 "stage7.y" /* yacc.c:1646  */
+#line 253 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(0,0,NULL,BREAKP,NULL,NULL,NULL,NULL);}
-#line 2063 "y.tab.c" /* yacc.c:1646  */
+#line 1994 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 328 "stage7.y" /* yacc.c:1646  */
+#line 257 "stage7.y" /* yacc.c:1646  */
     { 
-										G_TABLE_temp=G_TABLE;
-										while(G_TABLE_temp)
-										{
-											G_TABLE_temp=G_TABLE_temp->prev;
-										}
 										(yyval.no)=CreateTree(0,0,NULL,DECLARATION,NULL,NULL,NULL,G_TABLE);
 										G_TABLE=NULL;
 										G_TABLE_temp=NULL;
 									}
-#line 2078 "y.tab.c" /* yacc.c:1646  */
+#line 2004 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 338 "stage7.y" /* yacc.c:1646  */
+#line 262 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=NULL;}
-#line 2084 "y.tab.c" /* yacc.c:1646  */
+#line 2010 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 74:
-#line 339 "stage7.y" /* yacc.c:1646  */
+#line 263 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=NULL;}
-#line 2090 "y.tab.c" /* yacc.c:1646  */
+#line 2016 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 75:
-#line 342 "stage7.y" /* yacc.c:1646  */
-    {			decltypeflag=0;
-									temp_table=G_TABLE;
-									if(G_TABLE==NULL)
-									{
-										G_TABLE=G_TABLE_temp;
-									}
-									else
-									{
-										while(temp_table->prev)
-										{
-											temp_table=temp_table->prev;
-										}
-										temp_table->prev=G_TABLE_temp;
-									}
+#line 266 "stage7.y" /* yacc.c:1646  */
+    {			
+							G_TABLE=declaration_addentry(G_TABLE,G_TABLE_temp);
 									G_TABLE_temp=NULL;
 						}
-#line 2111 "y.tab.c" /* yacc.c:1646  */
+#line 2025 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 76:
-#line 358 "stage7.y" /* yacc.c:1646  */
-    {					
-									decltypeflag=0;
-									temp_table=G_TABLE;
-									if(G_TABLE==NULL)
-									{
-										G_TABLE=G_TABLE_temp;
-									}
-									else
-									{
-										while(temp_table->prev)
-										{
-											temp_table=temp_table->prev;
-										}
-										temp_table->prev=G_TABLE_temp;
-									}
+#line 270 "stage7.y" /* yacc.c:1646  */
+    {	
+					G_TABLE=declaration_addentry(G_TABLE,G_TABLE_temp);
 									G_TABLE_temp=NULL;
-								}
-#line 2133 "y.tab.c" /* yacc.c:1646  */
+				}
+#line 2034 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 77:
-#line 376 "stage7.y" /* yacc.c:1646  */
-    {
-						
-							while(temp_table)
-							{	
-							
-								temp_table->type=strdup((yyvsp[-2].name));
-								temp_table=temp_table->prev;
-							}	
-						
-										
-						}
-#line 2149 "y.tab.c" /* yacc.c:1646  */
+#line 275 "stage7.y" /* yacc.c:1646  */
+    {	declaration_typeupdate((yyvsp[-2].name),G_TABLE_temp); }
+#line 2040 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 390 "stage7.y" /* yacc.c:1646  */
+#line 279 "stage7.y" /* yacc.c:1646  */
     {(yyval.name)=strdup(INTE);}
-#line 2155 "y.tab.c" /* yacc.c:1646  */
+#line 2046 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 79:
-#line 391 "stage7.y" /* yacc.c:1646  */
+#line 280 "stage7.y" /* yacc.c:1646  */
     {(yyval.name)=strdup(STRE);}
-#line 2161 "y.tab.c" /* yacc.c:1646  */
+#line 2052 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 80:
-#line 392 "stage7.y" /* yacc.c:1646  */
+#line 281 "stage7.y" /* yacc.c:1646  */
     {(yyval.name)=strdup((yyvsp[0].name));}
-#line 2167 "y.tab.c" /* yacc.c:1646  */
+#line 2058 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 81:
-#line 395 "stage7.y" /* yacc.c:1646  */
-    {
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[0].name));
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
-#line 2179 "y.tab.c" /* yacc.c:1646  */
+#line 283 "stage7.y" /* yacc.c:1646  */
+    { G_TABLE_temp=declaration_addvar((yyvsp[0].name),1,G_TABLE_temp,NULL,0);}
+#line 2064 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 82:
-#line 403 "stage7.y" /* yacc.c:1646  */
-    {
-							temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[-3].name));
-							temp_table->size=(yyvsp[-1].no)->val;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
-#line 2191 "y.tab.c" /* yacc.c:1646  */
+#line 284 "stage7.y" /* yacc.c:1646  */
+    { G_TABLE_temp=declaration_addvar((yyvsp[-3].name),(yyvsp[-1].no)->val,G_TABLE_temp,NULL,0);}
+#line 2070 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 83:
-#line 410 "stage7.y" /* yacc.c:1646  */
-    {
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[0].name));
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
-#line 2203 "y.tab.c" /* yacc.c:1646  */
+#line 285 "stage7.y" /* yacc.c:1646  */
+    { G_TABLE_temp=declaration_addvar((yyvsp[0].name),1,G_TABLE_temp,NULL,0); }
+#line 2076 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 84:
-#line 417 "stage7.y" /* yacc.c:1646  */
-    {
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup((yyvsp[-3].name));
-							temp_table->size=(yyvsp[-1].no)->val;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
-#line 2215 "y.tab.c" /* yacc.c:1646  */
+#line 286 "stage7.y" /* yacc.c:1646  */
+    { G_TABLE_temp=declaration_addvar((yyvsp[-3].name),(yyvsp[-1].no)->val,G_TABLE_temp,NULL,0); }
+#line 2082 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 85:
-#line 426 "stage7.y" /* yacc.c:1646  */
+#line 289 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,0,NULL,READ0,NULL,CreateTree(0,INTE,(yyvsp[-1].name),VARIABLE,NULL,NULL,NULL,NULL),NULL,NULL);}
-#line 2221 "y.tab.c" /* yacc.c:1646  */
+#line 2088 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 86:
-#line 427 "stage7.y" /* yacc.c:1646  */
+#line 290 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,0,NULL,READ0,NULL,CreateTree(0,0,(yyvsp[-4].name),VARIABLE,NULL,(yyvsp[-2].no),NULL,NULL),NULL,NULL);}
-#line 2227 "y.tab.c" /* yacc.c:1646  */
+#line 2094 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 87:
-#line 428 "stage7.y" /* yacc.c:1646  */
+#line 291 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,0,NULL,READ0,NULL,(yyvsp[-1].no),NULL,NULL);}
-#line 2233 "y.tab.c" /* yacc.c:1646  */
+#line 2100 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 88:
-#line 431 "stage7.y" /* yacc.c:1646  */
+#line 294 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,0,NULL,WRITE0,NULL,(yyvsp[-1].no),NULL,NULL);}
-#line 2239 "y.tab.c" /* yacc.c:1646  */
+#line 2106 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 89:
-#line 434 "stage7.y" /* yacc.c:1646  */
+#line 297 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,(yyvsp[-2].name),VARIABLE,NULL,NULL,NULL,NULL),(yyvsp[0].no),NULL);}
-#line 2245 "y.tab.c" /* yacc.c:1646  */
+#line 2112 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 90:
-#line 435 "stage7.y" /* yacc.c:1646  */
+#line 298 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,(yyvsp[-5].name),VARIABLE,NULL,(yyvsp[-3].no),NULL,NULL),(yyvsp[0].no),NULL);}
-#line 2251 "y.tab.c" /* yacc.c:1646  */
+#line 2118 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 91:
-#line 436 "stage7.y" /* yacc.c:1646  */
+#line 299 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,INTE,NULL,OPERATOR,"=",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2257 "y.tab.c" /* yacc.c:1646  */
+#line 2124 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 92:
-#line 437 "stage7.y" /* yacc.c:1646  */
+#line 300 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,(yyvsp[-4].name),VARIABLE,NULL,NULL,NULL,NULL),CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
-#line 2263 "y.tab.c" /* yacc.c:1646  */
+#line 2130 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 93:
-#line 438 "stage7.y" /* yacc.c:1646  */
+#line 301 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,NULL1,strdup("intialize"),INIT,NULL,NULL,NULL,NULL);}
-#line 2269 "y.tab.c" /* yacc.c:1646  */
+#line 2136 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 94:
-#line 439 "stage7.y" /* yacc.c:1646  */
+#line 302 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,INTE,NULL,OPERATOR,"=",(yyvsp[-4].no),CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
-#line 2275 "y.tab.c" /* yacc.c:1646  */
+#line 2142 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 95:
-#line 442 "stage7.y" /* yacc.c:1646  */
+#line 305 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) =  CreateTree(0,BOLE,NULL,IFST,NULL,(yyvsp[-6].no),CreateTree(0,0,NULL,CONNECTOR,NULL,(yyvsp[-3].no),(yyvsp[-1].no),NULL),NULL);}
-#line 2281 "y.tab.c" /* yacc.c:1646  */
+#line 2148 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 96:
-#line 443 "stage7.y" /* yacc.c:1646  */
+#line 306 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) =  CreateTree(0,BOLE,NULL,IFST,NULL,(yyvsp[-4].no),CreateTree(0,0,NULL,CONNECTOR,NULL,(yyvsp[-1].no),NULL,NULL),NULL);}
-#line 2287 "y.tab.c" /* yacc.c:1646  */
+#line 2154 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 97:
-#line 446 "stage7.y" /* yacc.c:1646  */
+#line 309 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) =  CreateTree(0,BOLE,NULL,WHILEST,NULL,(yyvsp[-4].no),(yyvsp[-1].no),NULL);}
-#line 2293 "y.tab.c" /* yacc.c:1646  */
+#line 2160 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 98:
-#line 449 "stage7.y" /* yacc.c:1646  */
+#line 312 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,INTE,NULL,OPERATOR,"+",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2299 "y.tab.c" /* yacc.c:1646  */
+#line 2166 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 99:
-#line 450 "stage7.y" /* yacc.c:1646  */
+#line 313 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,INTE,NULL,OPERATOR,"-",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2305 "y.tab.c" /* yacc.c:1646  */
+#line 2172 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 100:
-#line 451 "stage7.y" /* yacc.c:1646  */
+#line 314 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,INTE,NULL,OPERATOR,"*",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2311 "y.tab.c" /* yacc.c:1646  */
+#line 2178 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 101:
-#line 452 "stage7.y" /* yacc.c:1646  */
+#line 315 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,INTE,NULL,OPERATOR,"/",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2317 "y.tab.c" /* yacc.c:1646  */
+#line 2184 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 102:
-#line 453 "stage7.y" /* yacc.c:1646  */
+#line 316 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,BOLE,NULL,OPERATOR,"<",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2323 "y.tab.c" /* yacc.c:1646  */
+#line 2190 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 103:
-#line 454 "stage7.y" /* yacc.c:1646  */
+#line 317 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,BOLE,NULL,OPERATOR,">",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2329 "y.tab.c" /* yacc.c:1646  */
+#line 2196 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 104:
-#line 455 "stage7.y" /* yacc.c:1646  */
+#line 318 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,BOLE,NULL,OPERATOR,">=",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2335 "y.tab.c" /* yacc.c:1646  */
+#line 2202 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 105:
-#line 456 "stage7.y" /* yacc.c:1646  */
+#line 319 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,BOLE,NULL,OPERATOR,"<=",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2341 "y.tab.c" /* yacc.c:1646  */
+#line 2208 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 106:
-#line 457 "stage7.y" /* yacc.c:1646  */
+#line 320 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,BOLE,NULL,OPERATOR,"==",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2347 "y.tab.c" /* yacc.c:1646  */
+#line 2214 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 107:
-#line 458 "stage7.y" /* yacc.c:1646  */
+#line 321 "stage7.y" /* yacc.c:1646  */
     { (yyval.no) = CreateTree(0,BOLE,NULL,OPERATOR,"!=",(yyvsp[-2].no),(yyvsp[0].no),NULL);}
-#line 2353 "y.tab.c" /* yacc.c:1646  */
+#line 2220 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 108:
-#line 459 "stage7.y" /* yacc.c:1646  */
+#line 322 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[-1].no);}
-#line 2359 "y.tab.c" /* yacc.c:1646  */
+#line 2226 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 109:
-#line 460 "stage7.y" /* yacc.c:1646  */
+#line 323 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,INTE,(yyvsp[-3].name),FUNCALL,NULL,(yyvsp[-1].no),NULL,NULL);}
-#line 2365 "y.tab.c" /* yacc.c:1646  */
+#line 2232 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 110:
-#line 461 "stage7.y" /* yacc.c:1646  */
+#line 324 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,INTE,(yyvsp[-3].name),VARIABLE,NULL,(yyvsp[-1].no),NULL,NULL);}
-#line 2371 "y.tab.c" /* yacc.c:1646  */
+#line 2238 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 111:
-#line 462 "stage7.y" /* yacc.c:1646  */
+#line 325 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = (yyvsp[0].no);}
-#line 2377 "y.tab.c" /* yacc.c:1646  */
+#line 2244 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 112:
-#line 463 "stage7.y" /* yacc.c:1646  */
+#line 326 "stage7.y" /* yacc.c:1646  */
     {(yyval.no) = CreateTree(0,INTE,(yyvsp[0].name),VARIABLE,NULL,NULL,NULL,NULL);}
-#line 2383 "y.tab.c" /* yacc.c:1646  */
+#line 2250 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 113:
-#line 464 "stage7.y" /* yacc.c:1646  */
+#line 327 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=(yyvsp[0].no);}
-#line 2389 "y.tab.c" /* yacc.c:1646  */
+#line 2256 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 114:
-#line 465 "stage7.y" /* yacc.c:1646  */
+#line 328 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=(yyvsp[0].no);}
-#line 2395 "y.tab.c" /* yacc.c:1646  */
+#line 2262 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 115:
-#line 466 "stage7.y" /* yacc.c:1646  */
+#line 329 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(0,NULL1,strdup(NULL1),VARIABLE,NULL,NULL,NULL,NULL);}
-#line 2401 "y.tab.c" /* yacc.c:1646  */
+#line 2268 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 116:
-#line 468 "stage7.y" /* yacc.c:1646  */
+#line 331 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=(yyvsp[0].no);}
-#line 2407 "y.tab.c" /* yacc.c:1646  */
+#line 2274 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 117:
-#line 469 "stage7.y" /* yacc.c:1646  */
+#line 332 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=NULL;}
-#line 2413 "y.tab.c" /* yacc.c:1646  */
+#line 2280 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 118:
-#line 471 "stage7.y" /* yacc.c:1646  */
+#line 334 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(0,0,NULL,CONNECTOR,NULL,(yyvsp[-2].no),CreateTree(0,(yyvsp[0].no)->type,(yyvsp[0].no)->varname,ARGUMENT,NULL,(yyvsp[0].no),NULL,NULL),NULL);}
-#line 2419 "y.tab.c" /* yacc.c:1646  */
+#line 2286 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 119:
-#line 472 "stage7.y" /* yacc.c:1646  */
+#line 335 "stage7.y" /* yacc.c:1646  */
     {(yyval.no)=CreateTree(0,(yyvsp[0].no)->type,(yyvsp[0].no)->varname,ARGUMENT,NULL,(yyvsp[0].no),NULL,NULL);}
-#line 2425 "y.tab.c" /* yacc.c:1646  */
+#line 2292 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2429 "y.tab.c" /* yacc.c:1646  */
+#line 2296 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2653,7 +2520,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 474 "stage7.y" /* yacc.c:1906  */
+#line 337 "stage7.y" /* yacc.c:1906  */
 
 
 int yyerror(char const *s)
@@ -2680,5 +2547,5 @@ int main(int argc,char** argv) {
 	yyparse();
 	fclose(label_file);
 	fclose(target_file);
-	return 0;
-}
+		return 0;
+		}

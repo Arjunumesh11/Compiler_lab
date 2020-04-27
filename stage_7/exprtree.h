@@ -174,6 +174,10 @@ int arguementcheck2(struct parameter *parameter1, struct symboltable *parameter2
 void help_viewtypetable();
 void help_viewclasstable();
 
+void declaration_typeupdate(char *type, struct symboltable *table);
+struct symboltable *declaration_addvar(char *name, int size, struct symboltable *table, struct parameter *paramlist, int label);
+struct symboltable *declaration_addentry(struct symboltable *table, struct symboltable *entry);
+
 extern struct labeltable LabelTable[No_labels];
 extern struct loop_counter *LOOP_COUNTER_HEAD, *LOOP_COUNTER_TEMP;
 extern struct symboltable *Symbol_Table, *temptable, *GLOBAL_TABLE;

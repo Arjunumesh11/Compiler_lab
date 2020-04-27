@@ -6,7 +6,6 @@
 	
     int number;
     char *varname;
-	int declflag=0,decltypeflag=0;
 %}
 
 %%

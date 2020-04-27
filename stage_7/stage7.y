@@ -80,11 +80,6 @@ MethodDefns : MethodDefns FDef {codeGen($2, target_file, 0);}
 FDef		: Type VAR '(' Parameters ')' '{' Declarations Body '}' {$$=CreateTree(0,strdup($1),$2,FUNCDEF,NULL,$4,CreateTree(0,0,NULL,CONNECTOR,NULL,$7,$8,NULL),NULL);}
 			;
 GDeclaration : DECL GDeclList ENDDECL { 
-										G_TABLE_temp=G_TABLE;
-										while(G_TABLE_temp)
-										{
-											G_TABLE_temp=G_TABLE_temp->prev;
-										}
 										$$=CreateTree(0,0,NULL,GDECLARATION,NULL,NULL,NULL,G_TABLE);
 										codeGen($$, target_file, 0);
 										G_TABLE=NULL;
@@ -95,35 +90,11 @@ GDeclaration : DECL GDeclList ENDDECL {
 
 GDeclList 	 : GDeclList GDecl
 										{
-											temp_table=G_TABLE;
-											if(G_TABLE==NULL)
-											{
-												G_TABLE=G_TABLE_temp;
-											}
-											else
-											{
-												while(temp_table->prev)
-												{
-													temp_table=temp_table->prev;
-												}
-												temp_table->prev=G_TABLE_temp;
-											}
+											G_TABLE= declaration_addentry(G_TABLE,G_TABLE_temp);
 											G_TABLE_temp=NULL;
 										}
 			 |GDecl						{
-											temp_table=G_TABLE;
-											if(G_TABLE==NULL)
-											{
-												G_TABLE=G_TABLE_temp;
-											}
-											else
-											{
-												while(temp_table->prev)
-												{
-													temp_table=temp_table->prev;
-												}
-												temp_table->prev=G_TABLE_temp;
-											}
+											G_TABLE= declaration_addentry(G_TABLE,G_TABLE_temp);
 											G_TABLE_temp=NULL;
 										}	
 		     ;
@@ -198,72 +169,30 @@ FieldFunction : SELF '.' VAR '(' arguments ')'	{$$ = CreateTree(2,0,$3,CFUNCALL,
 			  | VAR '.' VAR '(' arguments ')'	{$$ = CreateTree(2,0,$3,CFUNCALL,NULL,CreateTree(1,0,$1,FIELD,NULL,NULL,NULL,NULL),$5,NULL);}
 			  | Field '.' VAR '(' arguments')'	{$$ = CreateTree(0,INTE,$3,CFUNCALL,NULL,$1,$5,NULL);}
 			  ;
-GDecl  	     : Type GVarlist ';' {
-								
-									temp_table=G_TABLE_temp;
-									while(temp_table)
-									{	
-				
-										temp_table->type=strdup($1);
-										temp_table=temp_table->prev;
-									}	
-															
-								}
-
+GDecl  	     : Type GVarlist ';' {	declaration_typeupdate($1,G_TABLE_temp); }
 			 ;
-GVarlist     : GVarlist','VAR
-						{
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($3);
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
+GVarlist     : GVarlist','VAR	{ G_TABLE_temp=declaration_addvar($3,1,G_TABLE_temp,NULL,0);}
 			 | GVarlist','VAR'['NUM']'
 			 			{
-							temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($3);
-							temp_table->size=$5->val;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
+						G_TABLE_temp=declaration_addvar($3,$5->val,G_TABLE_temp,NULL,0);	 
 						}
 			 | GVarlist','VAR '(' Parameters ')'
 			 			{
-							temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($3);
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							temp_table->paramlist=V_Parameter;
-							temp_table->flabel=getlabel();
-							G_TABLE_temp=temp_table;
+							G_TABLE_temp=declaration_addvar($3,1,G_TABLE_temp,V_Parameter,getlabel());	 
 							V_Parameter=NULL; 	
 						}
 			 | VAR 	
 			 			{
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($1);
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
+			 				G_TABLE_temp=declaration_addvar($1,1,G_TABLE_temp,NULL,0);
 						}		
 			 | VAR'['NUM']' 
 			 			{
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($1);
-							temp_table->size=$3->val;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
+			 				G_TABLE_temp=declaration_addvar($1,$3->val,G_TABLE_temp,NULL,0);
 						}
 			 | VAR '(' Parameters ')'
 			 			{
-							temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($1);
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							temp_table->paramlist=V_Parameter;
-							temp_table->flabel=getlabel();
-							G_TABLE_temp=temp_table;
-							V_Parameter=NULL;
+							G_TABLE_temp=declaration_addvar($1,1,G_TABLE_temp,V_Parameter,getlabel());	 
+							V_Parameter=NULL; 	
 						}	
 	    	 ;
 
@@ -326,11 +255,6 @@ Stmt : InputStmt ';' 			{$$ = $1; }
 
 	 
 Declarations : DECL DeclList ENDDECL { 
-										G_TABLE_temp=G_TABLE;
-										while(G_TABLE_temp)
-										{
-											G_TABLE_temp=G_TABLE_temp->prev;
-										}
 										$$=CreateTree(0,0,NULL,DECLARATION,NULL,NULL,NULL,G_TABLE);
 										G_TABLE=NULL;
 										G_TABLE_temp=NULL;
@@ -339,51 +263,16 @@ Declarations : DECL DeclList ENDDECL {
 			 |						{$$=NULL;}
 			 ;
 DeclList : DeclList Decl
-						{			decltypeflag=0;
-									temp_table=G_TABLE;
-									if(G_TABLE==NULL)
-									{
-										G_TABLE=G_TABLE_temp;
-									}
-									else
-									{
-										while(temp_table->prev)
-										{
-											temp_table=temp_table->prev;
-										}
-										temp_table->prev=G_TABLE_temp;
-									}
+						{			
+							G_TABLE=declaration_addentry(G_TABLE,G_TABLE_temp);
 									G_TABLE_temp=NULL;
 						}
-		  |Decl	{					
-									decltypeflag=0;
-									temp_table=G_TABLE;
-									if(G_TABLE==NULL)
-									{
-										G_TABLE=G_TABLE_temp;
-									}
-									else
-									{
-										while(temp_table->prev)
-										{
-											temp_table=temp_table->prev;
-										}
-										temp_table->prev=G_TABLE_temp;
-									}
+		  |Decl	{	
+					G_TABLE=declaration_addentry(G_TABLE,G_TABLE_temp);
 									G_TABLE_temp=NULL;
-								}
+				}
 		 ;
-Decl : Type Varlist	';'{
-						
-							while(temp_table)
-							{	
-							
-								temp_table->type=strdup($1);
-								temp_table=temp_table->prev;
-							}	
-						
-										
-						}
+Decl : Type Varlist	';'{	declaration_typeupdate($1,G_TABLE_temp); }
 	 ;
 
 
@@ -391,36 +280,10 @@ Type : INT	{$$=strdup(INTE);}
 	 | STR	{$$=strdup(STRE);}
 	 | VAR	{$$=strdup($1);}
 	 ;
-Varlist : Varlist','VAR
-						{
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($3);
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
-		| Varlist','VAR'['NUM']'
-						{
-							temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($3);
-							temp_table->size=$5->val;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
-	 	| VAR 			{
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($1);
-							temp_table->size=1;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
-		| VAR'['NUM']' {
-			 				temp_table=(struct symboltable *)malloc(sizeof(struct symboltable ));
-		 					temp_table->name=strdup($1);
-							temp_table->size=$3->val;
-							temp_table->prev=G_TABLE_temp;
-							G_TABLE_temp=temp_table;
-						}
+Varlist : Varlist','VAR 		 { G_TABLE_temp=declaration_addvar($3,1,G_TABLE_temp,NULL,0);}
+		| Varlist','VAR'['NUM']' { G_TABLE_temp=declaration_addvar($3,$5->val,G_TABLE_temp,NULL,0);}
+	 	| VAR 					 { G_TABLE_temp=declaration_addvar($1,1,G_TABLE_temp,NULL,0); }
+		| VAR'['NUM']' 			 { G_TABLE_temp=declaration_addvar($1,$3->val,G_TABLE_temp,NULL,0); }
 	    ;
 
 InputStmt : READ '(' VAR ')' 	  	 		 {$$ = CreateTree(0,0,NULL,READ0,NULL,CreateTree(0,INTE,$3,VARIABLE,NULL,NULL,NULL,NULL),NULL,NULL);}
@@ -497,5 +360,5 @@ int main(int argc,char** argv) {
 	yyparse();
 	fclose(label_file);
 	fclose(target_file);
-	return 0;
-}
+		return 0;
+		}

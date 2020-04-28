@@ -4,16 +4,12 @@
 	#include "exprtree.h"
 	//#include "exprtree.c"
 	int yylex(void);
-	int labels;
-	int r1,decltypeflag;
-	char *type_flag;
+	int labels,r1,decltypeflag, Index=0,size=0;
+	char *type_flag,*name_type,*name,*yytext,*Current_type;
 	FILE *target_file,*yyin,*f;
 	struct symboltable *temp_table,*G_TABLE_temp,*G_TABLE,*temp_paratable,*G_PARATABLE;
-	struct Typetable *temptypetable;
-	struct Typetable *TYPE_TABLE;
+	struct Typetable *temptypetable,*TYPE_TABLE;
     struct Fieldlist *tempfieldlist,*tempfield;
-	int Index=0,size=0;
-	char *name_type,*name,*yytext;
 	struct Classtable *Cptr=NULL,*CLASS_TABLE,*temp_class=NULL,*Current_class;
 
 %}
@@ -22,7 +18,7 @@
 	struct tnode *no;
 }
 %type<no> Field FDef BEGIN0 END GDeclaration FieldFunction FuncBlock Parameters FuncList MainBlock Body Slist Stmt NUM InputStmt Retstmt argument arguments OutputStmt AsgStmt READ WRITE expr Ifstmt Whilestmt BREAK CONTINUE Declarations DECL ENDDECL
-%type<name>	Type INT STR VAR SELF
+%type<name>	Type INT STR VAR SELF Typename
 %token ALLOC  INTIALIZE RETURN MAIN READ BRKP SELF CLASS ENDCLASS Extends WRITE TYPE ENDTYPE NULL0 POW VAR PLUS MINUS MUL DIV BEGIN0 END NUM EQUAL GRT LST GRE LSE NEQUAL EEQUAL IF THEN ENDIF ENDWHILE DO ELSE WHILE BREAK CONTINUE DECL ENDDECL INT STR
 %nonassoc  GRT LST GRE LSE NEQUAL EEQUAL
 %left PLUS MINUS
@@ -103,57 +99,26 @@ TypeDefBlock  : TYPE TypeDefList ENDTYPE {}
 			  ;
 
 TypeDefList   : TypeDefList TypeDef		{	
-											temptypetable=TYPE_TABLE;
-				  							while(temptypetable->next)
-											  {
-												  temptypetable=temptypetable->next;
-											  }
-											temptypetable->next=TInstall(name,0,tempfield);
+											TYPE_TABLE=TInstall(name,0,tempfield,TYPE_TABLE);
 											tempfield=NULL;
 										}
               | TypeDef					{
-				  							
-											temptypetable=TYPE_TABLE;
-				  							while(temptypetable->next)
-											  {
-												  temptypetable=temptypetable->next;
-											  }
-											temptypetable->next=TInstall(name,0,tempfield);
+											TYPE_TABLE=TInstall(name,0,tempfield,TYPE_TABLE);
 											tempfield=NULL;
 			  							}
               ;
 
-TypeDef       : VAR '{' FieldDeclList '}'   {name=strdup($1);Index=0;}
+TypeDef       : Typename '{' FieldDeclList '}'   {name=strdup($1);Index=0;}
               ;
-
+Typename	  : VAR {$$=$1; Current_type=strdup($1);}
+			  ;
 FieldDeclList : FieldDeclList FieldDecl {
-											tempfieldlist->next=(struct Fieldlist*)malloc(sizeof(struct Fieldlist));
-											tempfieldlist=tempfieldlist->next;	
-											tempfieldlist->name=strdup(name);
-											tempfieldlist->type=TLookup(type_flag);
-											if(tempfield->type==NULL)
-											{
-												printf("ERROR TYPE not found %s",type_flag);
-												exit(0);
-											}
-											tempfieldlist->typename=strdup(type_flag);
-											
-											tempfieldlist->fieldIndex=Index;
+											tempfield=Type_FInstall(name,type_flag,Index,tempfield,Current_type);
 											name=NULL;type_flag=NULL;
 											Index++;
 										}
               | FieldDecl				{	
-				  							tempfield=(struct Fieldlist*)malloc(sizeof(struct Fieldlist));
-											tempfield->name=strdup(name);
-											tempfield->type=TLookup(type_flag);
-											tempfield->typename=strdup(type_flag);
-											if(tempfield->type==NULL)
-											{
-												printf("ERROR TYPE not found %s",type_flag);
-												exit(0);
-											}
-											tempfield->fieldIndex=Index;
-											tempfieldlist=tempfield;
+				  							tempfield=Type_FInstall(name,type_flag,Index,tempfield,Current_type);
 											name=NULL;type_flag=NULL; 
 											Index++;
 										}
@@ -171,29 +136,12 @@ FieldFunction : SELF '.' VAR '(' arguments ')'	{$$ = CreateTree(2,0,$3,CFUNCALL,
 			  ;
 GDecl  	     : Type GVarlist ';' {	declaration_typeupdate($1,G_TABLE_temp); }
 			 ;
-GVarlist     : GVarlist','VAR	{ G_TABLE_temp=declaration_addvar($3,1,G_TABLE_temp,NULL,0);}
-			 | GVarlist','VAR'['NUM']'
-			 			{
-						G_TABLE_temp=declaration_addvar($3,$5->val,G_TABLE_temp,NULL,0);	 
-						}
-			 | GVarlist','VAR '(' Parameters ')'
-			 			{
-							G_TABLE_temp=declaration_addvar($3,1,G_TABLE_temp,V_Parameter,getlabel());	 
-							V_Parameter=NULL; 	
-						}
-			 | VAR 	
-			 			{
-			 				G_TABLE_temp=declaration_addvar($1,1,G_TABLE_temp,NULL,0);
-						}		
-			 | VAR'['NUM']' 
-			 			{
-			 				G_TABLE_temp=declaration_addvar($1,$3->val,G_TABLE_temp,NULL,0);
-						}
-			 | VAR '(' Parameters ')'
-			 			{
-							G_TABLE_temp=declaration_addvar($1,1,G_TABLE_temp,V_Parameter,getlabel());	 
-							V_Parameter=NULL; 	
-						}	
+GVarlist     : GVarlist','VAR	{ G_TABLE_temp=declaration_addvar($3,1,G_TABLE_temp,NULL,0,G_TABLE);}
+			 | GVarlist','VAR'['NUM']' { G_TABLE_temp=declaration_addvar($3,$5->val,G_TABLE_temp,NULL,0,G_TABLE);	}
+			 | GVarlist','VAR '(' Parameters ')' { G_TABLE_temp=declaration_addvar($3,1,G_TABLE_temp,V_Parameter,getlabel(),G_TABLE); V_Parameter=NULL; }
+			 | VAR 	{ G_TABLE_temp=declaration_addvar($1,1,G_TABLE_temp,NULL,0,G_TABLE); }		
+			 | VAR'['NUM']' { G_TABLE_temp=declaration_addvar($1,$3->val,G_TABLE_temp,NULL,0,G_TABLE); }
+			 | VAR '(' Parameters ')'	{ G_TABLE_temp=declaration_addvar($1,1,G_TABLE_temp,V_Parameter,getlabel(),G_TABLE);	V_Parameter=NULL; }	
 	    	 ;
 
 Body         : BEGIN0 END						{$$=NULL;}
@@ -280,10 +228,10 @@ Type : INT	{$$=strdup(INTE);}
 	 | STR	{$$=strdup(STRE);}
 	 | VAR	{$$=strdup($1);}
 	 ;
-Varlist : Varlist','VAR 		 { G_TABLE_temp=declaration_addvar($3,1,G_TABLE_temp,NULL,0);}
-		| Varlist','VAR'['NUM']' { G_TABLE_temp=declaration_addvar($3,$5->val,G_TABLE_temp,NULL,0);}
-	 	| VAR 					 { G_TABLE_temp=declaration_addvar($1,1,G_TABLE_temp,NULL,0); }
-		| VAR'['NUM']' 			 { G_TABLE_temp=declaration_addvar($1,$3->val,G_TABLE_temp,NULL,0); }
+Varlist : Varlist','VAR 		 { G_TABLE_temp=declaration_addvar($3,1,G_TABLE_temp,NULL,0,G_TABLE);}
+		| Varlist','VAR'['NUM']' { G_TABLE_temp=declaration_addvar($3,$5->val,G_TABLE_temp,NULL,0,G_TABLE);}
+	 	| VAR 					 { G_TABLE_temp=declaration_addvar($1,1,G_TABLE_temp,NULL,0,G_TABLE); }
+		| VAR'['NUM']' 			 { G_TABLE_temp=declaration_addvar($1,$3->val,G_TABLE_temp,NULL,0,G_TABLE); }
 	    ;
 
 InputStmt : READ '(' VAR ')' 	  	 		 {$$ = CreateTree(0,0,NULL,READ0,NULL,CreateTree(0,INTE,$3,VARIABLE,NULL,NULL,NULL,NULL),NULL,NULL);}

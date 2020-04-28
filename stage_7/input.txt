@@ -2,7 +2,9 @@ type
 	list{
 		int data;
 		list next;
+		list data;
 		}
+	
 endtype
 	
 class

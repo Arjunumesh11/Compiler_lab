@@ -138,11 +138,12 @@ void symbolinit(struct symboltable *SymbolTable); //intialise symbol table
 struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char *op, tnode *l, tnode *r, struct symboltable *table);
 struct tnode *makePowerNode(struct tnode *l);
 
-void TypeTableCreate();                                                     //Function to initialise the type table entries with primitive types
-struct Typetable *TLookup(char *name);                                      //Search through the type table and return pointer to type table entry of type 'name'.
-struct Typetable *TInstall(char *name, int size, struct Fieldlist *fields); //Creates a type table entry for the (user defined) type of 'name' with given 'fields' and returns the pointer to the type table entry
-struct Fieldlist *FLookup(struct Typetable *type, char *name);              // Searches for a field of given 'name' in the 'fieldlist' of the given user-defined type and returns a pointer to the field entry
-int GetSize(struct Typetable *type);                                        // Returns the amount of memory words required to store a variable of the given type.
+void TypeTableCreate();                                                                                  //Function to initialise the type table entries with primitive types
+struct Typetable *TLookup(char *name);                                                                   //Search through the type table and return pointer to type table entry of type 'name'.
+struct Typetable *TInstall(char *name, int size, struct Fieldlist *fields, struct Typetable *Typetable); //Creates a type table entry for the (user defined) type of 'name' with given 'fields' and returns the pointer to the type table entry
+struct Fieldlist *Type_FInstall(char *name, char *type, int index, struct Fieldlist *fieldtable, char *currenttype);
+struct Fieldlist *FLookup(struct Typetable *type, char *name); // Searches for a field of given 'name' in the 'fieldlist' of the given user-defined type and returns a pointer to the field entry
+int GetSize(struct Typetable *type);                           // Returns the amount of memory words required to store a variable of the given type.
 
 struct Classtable *CInstall(char *name, char *parent_class_name);                                  // Creates a class table entry of given 'name' and extends the fields and the methods of parent class and returns a pointer to the newly created class entry.
 struct Classtable *CLookup(char *name);                                                            // Search for a class table entry with the given 'name', if exists, return pointer to class table entry else return NULL.
@@ -175,7 +176,7 @@ void help_viewtypetable();
 void help_viewclasstable();
 
 void declaration_typeupdate(char *type, struct symboltable *table);
-struct symboltable *declaration_addvar(char *name, int size, struct symboltable *table, struct parameter *paramlist, int label);
+struct symboltable *declaration_addvar(char *name, int size, struct symboltable *table, struct parameter *paramlist, int label, struct symboltable *GTABLE);
 struct symboltable *declaration_addentry(struct symboltable *table, struct symboltable *entry);
 
 extern struct labeltable LabelTable[No_labels];

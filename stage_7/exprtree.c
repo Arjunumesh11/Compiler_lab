@@ -1535,21 +1535,37 @@ void help_addbreak(FILE *targetfile)
 }
 void TypeTableCreate()
 {
-    struct Typetable *temp_TYPE_TABLE;
-    temp_TYPE_TABLE = TInstall("int", 1, NULL);
-    TYPE_TABLE = temp_TYPE_TABLE;
-    temp_TYPE_TABLE->next = TInstall("bool", 1, NULL);
-    temp_TYPE_TABLE = temp_TYPE_TABLE->next;
-    temp_TYPE_TABLE->next = TInstall("str", 1, NULL);
+
+    TYPE_TABLE = TInstall("int", 1, NULL, TYPE_TABLE);
+    TYPE_TABLE = TInstall("bool", 1, NULL, TYPE_TABLE);
+    TYPE_TABLE = TInstall("str", 1, NULL, TYPE_TABLE);
 }
-struct Typetable *TInstall(char *name, int size, struct Fieldlist *fields)
+struct Typetable *TInstall(char *name, int size, struct Fieldlist *fields, struct Typetable *Typetable)
 {
-    struct Typetable *temp_table = (struct Typetable *)malloc(sizeof(struct Typetable));
+    struct Typetable *temp, *temp_table = (struct Typetable *)malloc(sizeof(struct Typetable));
+    temp = Typetable;
+
     temp_table->name = name;
     temp_table->size = size;
     temp_table->fields = fields;
     temp_table->next = NULL;
-    return temp_table;
+    if (temp != NULL)
+    {
+        while (temp->next)
+        {
+
+            if (strcmp(temp->next->name, name) == 0)
+            {
+                printf("ERROR type redeclared %s", name);
+                exit(0);
+            }
+            temp = temp->next;
+        }
+        temp->next = temp_table;
+    }
+    else
+        Typetable = temp_table;
+    return Typetable;
 }
 struct Typetable *TLookup(char *name)
 {
@@ -1561,6 +1577,46 @@ struct Typetable *TLookup(char *name)
         temp_table = temp_table->next;
     }
     return NULL;
+}
+struct Fieldlist *Type_FInstall(char *name, char *type, int index, struct Fieldlist *fieldtable, char *currenttype)
+{
+    struct Fieldlist *temp, *temp_field = (struct Fieldlist *)malloc(sizeof(struct Fieldlist));
+    temp_field->name = strdup(name);
+    temp_field->fieldIndex = index;
+    temp_field->type = TLookup(type);
+    temp_field->typename = strdup(type);
+    if (temp_field->type == NULL)
+    {
+        if (strcmp(currenttype, type))
+        {
+            printf("ERROR TYPE not found %s", type);
+            exit(0);
+        }
+    }
+    temp = fieldtable;
+    if (temp != NULL)
+    {
+        if (strcmp(temp->name, name) == 0)
+        {
+            printf("TERROR : varible redeclared : %s \n", name);
+            exit(0);
+        }
+        while (temp->next)
+        {
+            if (strcmp(temp->next->name, name) == 0)
+            {
+                printf("TERROR : varible redeclared : %s \n", name);
+                exit(0);
+            }
+            temp = temp->next;
+        }
+        temp->next = temp_field;
+    }
+    else
+    {
+        fieldtable = temp_field;
+    }
+    return fieldtable;
 }
 struct Fieldlist *FLookup(struct Typetable *type, char *name)
 {
@@ -1707,9 +1763,32 @@ void declaration_typeupdate(char *type, struct symboltable *table)
         temptable = temptable->prev;
     }
 }
-struct symboltable *declaration_addvar(char *name, int size, struct symboltable *table, struct parameter *paramlist, int label)
+struct symboltable *declaration_addvar(char *name, int size, struct symboltable *table, struct parameter *paramlist, int label, struct symboltable *GTABLE)
 {
-    struct symboltable *temptable = (struct symboltable *)malloc(sizeof(struct symboltable));
+    struct symboltable *temptable;
+    temptable = table;
+    while (GTABLE)
+    {
+        //   printf("%s ", name);
+        if (strcmp(GTABLE->name, name) == 0)
+        {
+            printf("ERROR : variable redeclared %s\n", name);
+            exit(0);
+        }
+        GTABLE = GTABLE->prev;
+    }
+    while (temptable)
+    {
+        //  printf("%s ", name);
+        if (strcmp(temptable->name, name) == 0)
+        {
+            printf("ERROR : variable redeclared %s\n", name);
+            exit(0);
+        }
+        temptable = temptable->prev;
+    }
+    // printf("\n ");
+    temptable = (struct symboltable *)malloc(sizeof(struct symboltable));
     temptable->name = strdup(name);
     temptable->size = 1;
     temptable->prev = table;

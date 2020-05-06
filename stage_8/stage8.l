@@ -41,6 +41,8 @@
 "extends"   {return Extends;}
 "self"		{yylval.name=strdup("self");return SELF;}
 "BRKP"      {return BRKP;}
+"new"		{return NEW;}
+
 "+"	{return PLUS;}
 "-"	{return MINUS;}
 "*"	{return MUL;}

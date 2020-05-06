@@ -1,0 +1,48 @@
+type
+list{
+    int data;
+    int next;
+    }
+endtype
+
+class
+ linkedlist{
+     decl 
+        int head;
+        int tail;
+         int print();
+
+    enddecl
+    int print()
+    {
+        begin
+        write(self.head);
+        write(self.tail);
+        return 1;
+        end
+    }
+ }
+ endclass
+ decl
+    linkedlist obj;
+enddecl
+ int main()
+ {
+     decl
+        list a;
+        int x,y;
+    enddecl
+    begin
+        x=initialize();
+        obj=alloc();
+        a=alloc();
+        obj.head=1;
+        obj.tail=2;
+        x=obj.print();
+        a.data=1;
+        a.next=2;
+        write(a.data);
+        write(a.next);
+    return 1;
+    end
+ }

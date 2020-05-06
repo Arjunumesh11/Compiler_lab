@@ -50,39 +50,45 @@ extern int yydebug;
     RETURN = 260,
     MAIN = 261,
     READ = 262,
-    WRITE = 263,
-    TYPE = 264,
-    ENDTYPE = 265,
-    NULL0 = 266,
-    POW = 267,
-    VAR = 268,
-    PLUS = 269,
-    MINUS = 270,
-    MUL = 271,
-    DIV = 272,
-    BEGIN0 = 273,
-    END = 274,
-    NUM = 275,
-    EQUAL = 276,
-    GRT = 277,
-    LST = 278,
-    GRE = 279,
-    LSE = 280,
-    NEQUAL = 281,
-    EEQUAL = 282,
-    IF = 283,
-    THEN = 284,
-    ENDIF = 285,
-    ENDWHILE = 286,
-    DO = 287,
-    ELSE = 288,
-    WHILE = 289,
-    BREAK = 290,
-    CONTINUE = 291,
-    DECL = 292,
-    ENDDECL = 293,
-    INT = 294,
-    STR = 295
+    BRKP = 263,
+    NEW = 264,
+    SELF = 265,
+    CLASS = 266,
+    ENDCLASS = 267,
+    Extends = 268,
+    WRITE = 269,
+    TYPE = 270,
+    ENDTYPE = 271,
+    NULL0 = 272,
+    POW = 273,
+    VAR = 274,
+    PLUS = 275,
+    MINUS = 276,
+    MUL = 277,
+    DIV = 278,
+    BEGIN0 = 279,
+    END = 280,
+    NUM = 281,
+    EQUAL = 282,
+    GRT = 283,
+    LST = 284,
+    GRE = 285,
+    LSE = 286,
+    NEQUAL = 287,
+    EEQUAL = 288,
+    IF = 289,
+    THEN = 290,
+    ENDIF = 291,
+    ENDWHILE = 292,
+    DO = 293,
+    ELSE = 294,
+    WHILE = 295,
+    BREAK = 296,
+    CONTINUE = 297,
+    DECL = 298,
+    ENDDECL = 299,
+    INT = 300,
+    STR = 301
   };
 #endif
 /* Tokens.  */
@@ -91,51 +97,57 @@ extern int yydebug;
 #define RETURN 260
 #define MAIN 261
 #define READ 262
-#define WRITE 263
-#define TYPE 264
-#define ENDTYPE 265
-#define NULL0 266
-#define POW 267
-#define VAR 268
-#define PLUS 269
-#define MINUS 270
-#define MUL 271
-#define DIV 272
-#define BEGIN0 273
-#define END 274
-#define NUM 275
-#define EQUAL 276
-#define GRT 277
-#define LST 278
-#define GRE 279
-#define LSE 280
-#define NEQUAL 281
-#define EEQUAL 282
-#define IF 283
-#define THEN 284
-#define ENDIF 285
-#define ENDWHILE 286
-#define DO 287
-#define ELSE 288
-#define WHILE 289
-#define BREAK 290
-#define CONTINUE 291
-#define DECL 292
-#define ENDDECL 293
-#define INT 294
-#define STR 295
+#define BRKP 263
+#define NEW 264
+#define SELF 265
+#define CLASS 266
+#define ENDCLASS 267
+#define Extends 268
+#define WRITE 269
+#define TYPE 270
+#define ENDTYPE 271
+#define NULL0 272
+#define POW 273
+#define VAR 274
+#define PLUS 275
+#define MINUS 276
+#define MUL 277
+#define DIV 278
+#define BEGIN0 279
+#define END 280
+#define NUM 281
+#define EQUAL 282
+#define GRT 283
+#define LST 284
+#define GRE 285
+#define LSE 286
+#define NEQUAL 287
+#define EEQUAL 288
+#define IF 289
+#define THEN 290
+#define ENDIF 291
+#define ENDWHILE 292
+#define DO 293
+#define ELSE 294
+#define WHILE 295
+#define BREAK 296
+#define CONTINUE 297
+#define DECL 298
+#define ENDDECL 299
+#define INT 300
+#define STR 301
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 18 "./stage_7/stage7.y" /* yacc.c:1909  */
+#line 16 "stage8.y" /* yacc.c:1909  */
 
 	char* name;
 	struct tnode *no;
 
-#line 139 "y.tab.h" /* yacc.c:1909  */
+#line 151 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

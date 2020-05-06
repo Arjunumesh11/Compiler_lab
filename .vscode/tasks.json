@@ -9,9 +9,9 @@
             "type": "shell",
             "command": "yacc",
             "options": {
-                "cwd": "${workspaceRoot}/stage_7"
+                "cwd": "${workspaceRoot}/stage_8"
               },
-            "args": ["stage7.y","-d"]
+            "args": ["stage8.y","-d"]
         },
         {
             "label": "lex",
@@ -20,9 +20,9 @@
             "type": "shell",
             "command":"lex",
             "options": {
-                "cwd": "${workspaceRoot}/stage_7"
+                "cwd": "${workspaceRoot}/stage_8"
               },
-            "args": ["stage7.l"]
+            "args": ["stage8.l"]
         },
         {
             "label": "compile",
@@ -32,7 +32,7 @@
             "type": "shell",
             "command":"gcc",
             "options": {
-                "cwd": "${workspaceRoot}/stage_7"
+                "cwd": "${workspaceRoot}/stage_8"
               },
             "args": ["-fno-stack-protector","y.tab.c","lex.yy.c","exprtree.c","-g"]
         },
@@ -42,7 +42,7 @@
             "dependsOn":"compile",
             "type": "shell",
             "options": {
-                "cwd": "${workspaceRoot}/stage_7"
+                "cwd": "${workspaceRoot}/stage_8"
               },
             "command":"./a.out",
             "args": ["input.txt"]
@@ -52,7 +52,7 @@
             "dependsOn":"run",
             "group": "test",
             "options": {
-                "cwd": "${workspaceRoot}/stage_7"
+                "cwd": "${workspaceRoot}/stage_8"
               },
             "type": "shell",
             "command":"./linker",
@@ -62,7 +62,7 @@
           "group": "build",
           "type": "shell",
           "options": {
-              "cwd": "${workspaceRoot}/stage_7"
+              "cwd": "${workspaceRoot}/stage_8"
             },
           "command":"./a.out",
           "args": ["input.txt"]
@@ -72,7 +72,7 @@
           "dependsOn":"run",
           "group": "build",
           "options": {
-              "cwd": "${workspaceRoot}/stage_7"
+              "cwd": "${workspaceRoot}/stage_8"
             },
           "type": "shell",
           "command":"./linker",

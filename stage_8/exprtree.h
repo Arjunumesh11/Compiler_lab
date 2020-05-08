@@ -9,6 +9,7 @@ extern int memlocation; //current memory location
 extern int localmem;
 extern int paramem;
 extern int declflag, decltypeflag;
+extern int Class_index;
 
 #define INTE "int"
 #define BOLE "bool"
@@ -151,6 +152,7 @@ void Class_Finstall(struct Classtable *cptr, char *typename, char *name);       
 void Class_Minstall(struct Classtable *cptr, char *name, char *type, struct parameter *Paramlist); // Installs the method into the given class table entry which is given as an argument.
 struct Memberfunclist *Class_Mlookup(struct Classtable *Ctype, char *Name);                        // Search through the VFunclist of the class using Ctype that is being parsed and return pointer to the entry in the list with function name as Name. Returns NULL if entry is not found.
 struct Fieldlist *Class_Flookup(struct Classtable *Ctype, char *Name);                             // Search through the Memberfield of the current class using Ctype that is being parsed and return pointer to the entry in the list with variable name as Name. Returns NULL if entry is not found
+struct Memberfunclist *Class_func_copy(struct Memberfunclist *func_ptr);
 
 int yyerror(char const *s);
 int min(int a, int b);
@@ -174,6 +176,7 @@ int arguementcheck(struct parameter *parameters, struct tnode *l);
 int arguementcheck2(struct parameter *parameter1, struct symboltable *parameter2);
 void help_viewtypetable();
 void help_viewclasstable();
+void create_virtual_class_table(FILE *targetfile); //to create virtual classtabe
 
 void declaration_typeupdate(char *type, struct symboltable *table);
 struct symboltable *declaration_addvar(char *name, int size, struct symboltable *table, struct parameter *paramlist, int label, struct symboltable *GTABLE);

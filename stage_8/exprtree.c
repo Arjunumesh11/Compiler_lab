@@ -12,6 +12,7 @@ int reg_temp[20], reg_temp2[20];
 int junk;
 int declflag;
 int decltypeflag;
+int Class_index = 0;
 
 struct labeltable LabelTable[No_labels];
 struct loop_counter *LOOP_COUNTER_HEAD = NULL, *LOOP_COUNTER_TEMP = NULL;
@@ -1510,16 +1511,25 @@ void help_viewtypetable()
 void help_viewclasstable()
 {
     struct Classtable *TABLE = CLASS_TABLE;
+    struct Memberfunclist *method_temp;
     struct Fieldlist *field_temp;
     printf("\n class Table \n");
     while (TABLE)
     {
-        printf("\n %s \n", TABLE->Name);
+        printf("\n %s index %d \n", TABLE->Name, TABLE->Class_index);
         field_temp = TABLE->Memberfield;
+        method_temp = TABLE->Vfuncptr;
+        printf("\n      Fields \n");
         while (field_temp)
         {
             printf("    %s %s\n", field_temp->type->name, field_temp->name);
             field_temp = field_temp->next;
+        }
+        printf("\n      Methods \n");
+        while (method_temp)
+        {
+            printf("    %s %s  label %d position %d\n", method_temp->Type->name, method_temp->Name, method_temp->Flabel, method_temp->Funcposition);
+            method_temp = method_temp->Next;
         }
 
         TABLE = TABLE->Next;
@@ -1639,12 +1649,25 @@ struct Classtable *CInstall(char *name, char *parent_class_name)
 {
     struct Classtable *temp;
     temp = (struct Classtable *)malloc(sizeof(struct Classtable));
-    temp->Name = strdup(name);
-    temp->Parentptr = CLookup(parent_class_name);
     temp->Next = NULL;
     temp->Methodcount = 0;
     temp->Fieldcount = 0;
-    temp->Class_index = 0;
+    temp->Class_index = Class_index;
+    Class_index++;
+    temp->Name = strdup(name);
+    if (parent_class_name)
+    {
+        temp->Parentptr = CLookup(parent_class_name);
+        if (!temp->Parentptr)
+        {
+            printf("CERROR parent class not declared :%s extends %s", name, parent_class_name);
+            exit(0);
+        }
+        temp->Memberfield = temp->Parentptr->Memberfield;
+        temp->Vfuncptr = Class_func_copy(temp->Parentptr->Vfuncptr);
+        temp->Methodcount = temp->Parentptr->Methodcount;
+        temp->Fieldcount = temp->Parentptr->Fieldcount;
+    }
     return temp;
 }
 struct Classtable *CLookup(char *name)
@@ -1664,8 +1687,9 @@ struct Classtable *CLookup(char *name)
 }
 void Class_Minstall(struct Classtable *cptr, char *name, char *type, struct parameter *Paramlist)
 {
-    int position;
-    struct Memberfunclist *temp, *temp1;
+    int position = 0, flag = 0;
+    struct Memberfunclist *temp, *temp1 = NULL, *temp_prev = NULL, *temp2 = NULL;
+
     temp = (struct Memberfunclist *)malloc(sizeof(struct Memberfunclist));
     temp->Name = strdup(name);
     if (TLookup(type))
@@ -1684,22 +1708,71 @@ void Class_Minstall(struct Classtable *cptr, char *name, char *type, struct para
     }
     else
     {
-        temp1 = cptr->Vfuncptr;
-        while (temp1->Next)
+        temp_prev = NULL;
+        if (cptr->Parentptr)
         {
-            // printf("%s ", temp1->Name);
-            position = temp1->Funcposition;
-            temp1 = temp1->Next;
+            temp2 = cptr->Parentptr->Vfuncptr;
+            position = temp2->Funcposition;
+
+            while (temp2)
+            {
+                //printf("%s name %s Name \n", name, temp2->Name);
+                if (strcmp(temp2->Name, name) == 0)
+                {
+                    // printf("flag");
+                    flag = 1;
+                    break;
+                }
+                position = temp2->Funcposition;
+                temp_prev = temp2;
+                temp2 = temp2->Next;
+            }
         }
-        temp->Funcposition = position + 1;
-        temp1->Next = temp;
+        if (flag)
+        {
+            temp->Funcposition = temp2->Funcposition;
+            temp->Next = temp2->Next;
+        }
+        else
+        {
+            temp2 = cptr->Vfuncptr;
+            while (temp2)
+            {
+                temp_prev = temp2;
+                temp2 = temp2->Next;
+                position = temp_prev->Funcposition;
+            }
+            temp->Funcposition = position + 1;
+        }
+        if (temp_prev)
+        {
+            temp_prev->Next = temp;
+        }
+        else
+        {
+            temp->Next = cptr->Vfuncptr->Next;
+            cptr->Vfuncptr = temp;
+        }
     }
-    //printf("\n");
     cptr->Methodcount++;
+    if (cptr->Methodcount > 8)
+    {
+        printf("CERROR method count : %s", cptr->Name);
+        exit(0);
+    }
 }
 void Class_Finstall(struct Classtable *cptr, char *typename, char *name)
 {
     struct Fieldlist *temp, *temp1;
+    struct Classtable *parentclass = cptr->Parentptr;
+    if (parentclass != NULL)
+    {
+        if (Class_Flookup(parentclass, name) != NULL)
+        {
+            printf("CERROR redeclaration of parent field : %s in %s", name, cptr->Name);
+            exit(0);
+        }
+    }
     temp = (struct Fieldlist *)malloc(sizeof(struct Fieldlist));
     temp->name = strdup(name);
     if (TLookup(typename))
@@ -1713,6 +1786,11 @@ void Class_Finstall(struct Classtable *cptr, char *typename, char *name)
     }
     temp->fieldIndex = cptr->Fieldcount;
     cptr->Fieldcount++;
+    if (cptr->Fieldcount > 8)
+    {
+        printf("CERROR Field count : %s", cptr->Name);
+        exit(0);
+    }
     if (cptr->Memberfield == NULL)
         cptr->Memberfield = temp;
     else
@@ -1810,4 +1888,50 @@ struct symboltable *declaration_addentry(struct symboltable *table, struct symbo
         temptable->prev = entry;
     }
     return table;
+}
+struct Memberfunclist *Class_func_copy(struct Memberfunclist *func_ptr)
+{
+    if (!func_ptr)
+        return NULL;
+    struct Memberfunclist *ptr, *temp = NULL;
+    ptr = (struct Memberfunclist *)malloc(sizeof(struct Memberfunclist));
+    temp = ptr;
+    temp->Name = func_ptr->Name;
+    temp->Type = func_ptr->Type;
+    temp->Flabel = func_ptr->Flabel;
+    temp->Funcposition = func_ptr->Funcposition;
+    temp->paramlist = func_ptr->paramlist;
+
+    while (func_ptr->Next)
+    {
+        temp->Next = (struct Memberfunclist *)malloc(sizeof(struct Memberfunclist));
+        temp->Next->Name = func_ptr->Next->Name;
+        temp->Next->Type = func_ptr->Next->Type;
+        temp->Next->Flabel = func_ptr->Next->Flabel;
+        temp->Next->Funcposition = func_ptr->Next->Funcposition;
+        temp->Next->paramlist = func_ptr->Next->paramlist;
+        func_ptr = func_ptr->Next;
+        temp = temp->Next;
+    }
+    return ptr;
+}
+void create_virtual_class_table(FILE *targetfile)
+{
+    struct Classtable *temp_class = CLASS_TABLE;
+    struct Memberfunclist *temp_fuclist;
+    int temp_mem;
+    while (temp_class)
+    {
+        temp_fuclist = temp_class->Vfuncptr;
+        temp_mem = memlocation;
+        while (temp_fuclist)
+        {
+
+            fprintf(targetfile, "MOV [%d],L%d \n", temp_mem + temp_fuclist->Funcposition, temp_fuclist->Flabel);
+            pos++;
+            temp_fuclist = temp_fuclist->Next;
+        }
+        memlocation = memlocation + 8;
+        temp_class = temp_class->Next;
+    }
 }

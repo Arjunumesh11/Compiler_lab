@@ -1571,7 +1571,7 @@ yyreduce:
 
   case 9:
 #line 39 "stage8.y" /* yacc.c:1646  */
-    {Current_class=NULL;}
+    {Current_class=NULL; help_viewclasstable();create_virtual_class_table(target_file);}
 #line 1576 "y.tab.c" /* yacc.c:1646  */
     break;
 

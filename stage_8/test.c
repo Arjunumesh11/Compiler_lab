@@ -1,16 +1,19 @@
-#include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-int var = 15;
-void func(int *p)
+#include <stdlib.h>
+struct name
 {
-    p = &b;
-    printf("inside : %d adress %d\n", *p, p);
-}
+    char *first;
+};
 int main()
 {
-    int b = 100, *ptr = &b;
-    func(ptr);
-    printf("%d %d ", *ptr, ptr);
+    struct name *a, *b;
+    char n[10] = "sdf";
+    a = (struct name *)malloc(sizeof(struct name));
+    b = (struct name *)malloc(sizeof(struct name));
+    memcpy(b, a, sizeof(struct name));
+    a->first = n;
+
+    printf("%s", a->first);
+    printf("%s", b->first);
 }

@@ -36,7 +36,7 @@ FuncList     : FuncList FuncBlock	{codeGen($2, target_file, 0);}
 		  
 FuncBlock    : Type VAR '(' Parameters ')' '{' Declarations Body '}'	{$$=CreateTree(0,strdup($1),$2,FUNCDEF,NULL,$4,CreateTree(0,0,NULL,CONNECTOR,NULL,$7,$8,NULL),NULL);}
 		  	 ;
-ClassDefBlock   : CLASS ClassDefList ENDCLASS	{Current_class=NULL;}
+ClassDefBlock   : CLASS ClassDefList ENDCLASS	{Current_class=NULL; help_viewclasstable();create_virtual_class_table(target_file);}
                 |
 				;
 ClassDefList   : ClassDefList ClassDef	

@@ -213,15 +213,8 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
                 fun_temp = Class_Mlookup(Current_class, varname);
                 if (fun_temp)
                 {
-                    printf("current class %s method %s\n", Current_class->Name, fun_temp->Name);
                     type_temp = strdup(fun_temp->Type->name);
                     para_temp = fun_temp->paramlist;
-                    struct parameter *temp_p = para_temp;
-                    while (temp_p)
-                    {
-                        printf(" para %s \n", temp_p->name);
-                        temp_p = temp_p->prev;
-                    }
                 }
                 else
                 {
@@ -252,7 +245,7 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
             printf("ERROR type mismatch expected %s   %s %s(...)\n", Symbol_Temp->type, type, varname);
             exit(0);
         }*/
-        help_viewtable(l->Gsymbol, 3);
+        // help_viewtable(l->Gsymbol, 3);
 
         if (l == NULL)
         {
@@ -1858,15 +1851,6 @@ void Class_Minstall(struct Classtable *cptr, char *name, char *type, struct para
         printf("CERROR method count : %s", cptr->Name);
         exit(0);
     }
-    printf("\n--------------------\n");
-    struct parameter *temp_p = Paramlist;
-    printf("current function %s", temp->Name);
-    while (temp_p)
-    {
-        printf("para %s\n", temp_p->name);
-        temp_p = temp_p->prev;
-    }
-    printf("\n_----------------\n");
 }
 void Class_Finstall(struct Classtable *cptr, char *typename, char *name)
 {

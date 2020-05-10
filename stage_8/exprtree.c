@@ -4,10 +4,11 @@
 #include "exprtree.h"
 
 int labels = 1;
-int pos = 0;            //position of commands
+int pos = 0; //position of commands
+const int memory_address = 4097;
 int memlocation = 4097; //current memory location
 int localmem = 1;
-int paramem = -3;
+int paramem = -2;
 int reg_temp[20], reg_temp2[20];
 int junk;
 int declflag;
@@ -80,7 +81,16 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
             if (strcmp(l->type, r->type))
             {
                 //printf("adsf %s", r->type);
-                if (strcmp(r->type, "NULL"))
+                struct Classtable *left_class = CLookup(l->type), *right_class = CLookup(r->type);
+                if (left_class && right_class)
+                {
+                    if (!is_parent(left_class, right_class))
+                    {
+                        printf("ERROR type mismatch (not a parent) %s %s = %s %s\n", l->type, l->varname, r->type, r->varname);
+                        exit(0);
+                    }
+                }
+                else if (strcmp(r->type, "NULL"))
                 {
                     printf("ERROR type mismatch %s %s = %s %s\n", l->type, l->varname, r->type, r->varname);
                     exit(0);
@@ -113,7 +123,10 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
                 if (Symbol_Temp->type)
                     type = strdup(Symbol_Temp->type);
                 else
+                {
+                    printf("CTYPE");
                     type = strdup(Symbol_Temp->ctype);
+                }
             }
             if (l != NULL)
             {
@@ -192,7 +205,6 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
         struct Memberfunclist *fun_temp;
         struct parameter *para_temp;
         char *type_temp;
-
         Symbol_Temp = GLookup(varname);
         if (Symbol_Temp == NULL)
         {
@@ -201,8 +213,15 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
                 fun_temp = Class_Mlookup(Current_class, varname);
                 if (fun_temp)
                 {
+                    printf("current class %s method %s\n", Current_class->Name, fun_temp->Name);
                     type_temp = strdup(fun_temp->Type->name);
                     para_temp = fun_temp->paramlist;
+                    struct parameter *temp_p = para_temp;
+                    while (temp_p)
+                    {
+                        printf(" para %s \n", temp_p->name);
+                        temp_p = temp_p->prev;
+                    }
                 }
                 else
                 {
@@ -233,6 +252,8 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
             printf("ERROR type mismatch expected %s   %s %s(...)\n", Symbol_Temp->type, type, varname);
             exit(0);
         }*/
+        help_viewtable(l->Gsymbol, 3);
+
         if (l == NULL)
         {
             if (para_temp != NULL)
@@ -266,7 +287,7 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
             temptable = (struct symboltable *)malloc(sizeof(struct symboltable));
             temptable->name = strdup("self");
             temptable->ctype = strdup(Current_class->Name);
-            temptable->size = 1;
+            temptable->size = 2;
 
             if (table == NULL)
             {
@@ -374,6 +395,10 @@ struct tnode *CreateTree(int val, char *type, char *varname, int nodetype, char 
             printf("TYPEERROR : %s", varname);
         }
     }
+    if (nodetype == NEW0)
+    {
+        //printf("var name :%s", varname);
+    }
     struct tnode *temp;
     temp = (struct tnode *)malloc(sizeof(struct tnode));
 
@@ -405,9 +430,8 @@ int Lallocatemem(int n, FILE *targetfile)
 }
 int Pallocatemem(int n)
 {
-    int temp = paramem;
     paramem = paramem - n;
-    return temp;
+    return paramem;
 }
 int min(int a, int b)
 {
@@ -546,9 +570,24 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         if (strcmp(t->op, "=") == 0)
         {
             r1 = codeGen(t->left, targetfile, 0);
-            r2 = codeGen(t->right, targetfile, 1);
-            fprintf(targetfile, " MOV [R%d],R%d\n", r1, r2);
-            pos++;
+            if (CLookup(t->left->type) && CLookup(t->right->type))
+            {
+                r2 = codeGen(t->right, targetfile, 0);
+                fprintf(targetfile, " MOV [R%d],[R%d]\n", r1, r2);
+                pos++;
+                fprintf(targetfile, " ADD R%d,%d\n", r1, 1);
+                pos++;
+                fprintf(targetfile, " ADD R%d,%d\n", r2, 1);
+                pos++;
+                fprintf(targetfile, " MOV [R%d],[R%d]\n", r1, r2);
+                pos++;
+            }
+            else
+            {
+                r2 = codeGen(t->right, targetfile, 1);
+                fprintf(targetfile, " MOV [R%d],R%d\n", r1, r2);
+                pos++;
+            }
             freeReg(REG_COUNTER->Reg);
             freeReg(REG_COUNTER->Reg);
             return 0;
@@ -969,6 +1008,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             temptable->binding = Gallocatemem(temptable->size);
             temptable = temptable->prev;
         }
+        // help_viewtable(GLOBAL_TABLE, 1);
         return 0;
     }
     if (t->nodetype == PDECLARATION)
@@ -980,7 +1020,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             temptable->binding = Pallocatemem(temptable->size);
             temptable = temptable->prev;
         }
-        paramem = -3;
+        paramem = -2;
         //  help_viewtable(PARAM_TABLE->val, 2);
         return 0;
     }
@@ -1031,6 +1071,16 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         fprintf(targetfile, " PUSH R%d\n", r2); //reference value in object
         pos++;
         freeReg(REG_COUNTER->Reg);
+        r3 = getReg(REG_COUNTER->Reg);
+        r2 = codeGen(t->left, targetfile, 0);
+        fprintf(targetfile, " ADD R%d ,%d\n", r2, 1);
+        pos++;
+        fprintf(targetfile, " MOV R%d ,[R%d]\n", r3, r2); //virtual fuctionpointer in object
+        pos++;
+        freeReg(REG_COUNTER->Reg);
+        fprintf(targetfile, " PUSH R%d\n", r3); //virtual fuctionpointer in object
+        pos++;
+        // freeReg(REG_COUNTER->Reg);
         junk = codeGen(t->right, targetfile, 1); //calling arguments pushing args
         fprintf(targetfile, " PUSH R19\n");      // reg for return value
         pos++;
@@ -1040,11 +1090,21 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
             printf("ERROR  function undeclared : %s ", t->varname);
             exit(0);
         }
-        fprintf(targetfile, " CALL L%d\n", func_info->Flabel);
+        r1 = getReg(REG_COUNTER->Reg);
+        fprintf(targetfile, " ADD R%d,%d\n", r3, func_info->Funcposition);
         pos++;
+        fprintf(targetfile, " MOV R%d,[R%d]\n", r1, r3);
+        pos++;
+        freeReg(REG_COUNTER->Reg);
+        fprintf(targetfile, " CALL R%d\n", r1);
+        pos++;
+        freeReg(REG_COUNTER->Reg);
+
         memcpy(REG_COUNTER->Reg, reg_temp1, sizeof(int) * 20);
         r1 = getReg(REG_COUNTER->Reg);         //reg for return value
         fprintf(targetfile, " POP R%d\n", r1); //reg for return
+        pos++;
+        fprintf(targetfile, " POP R19\n");
         pos++;
         fprintf(targetfile, " POP R19\n");
         pos++;
@@ -1113,6 +1173,10 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         }
         fprintf(targetfile, "L%d:\n", label);
         LabelTable[label].address = pos * 2 + start_adress;
+        if (strcmp(t->varname, "MAIN") == 0)
+        {
+            create_virtual_class_table(targetfile);
+        }
         snprintf(name, 6, "L%d", label);
         strcpy(LabelTable[label].name, name);
         fwrite(&LabelTable[label], sizeof(struct labeltable), 1, label_file);
@@ -1316,6 +1380,22 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         fprintf(targetfile, " BRKP\n");
         pos++;
     }
+    if (t->nodetype == NEW0)
+    {
+
+        struct Classtable *cptr;
+        cptr = CLookup(t->varname);
+        if (!cptr)
+        {
+            printf("\nCERROR class not found :%s\n", t->varname);
+            exit(0);
+        }
+        r1 = getReg(REG_COUNTER->Reg);
+        //printf("virtual table %d", cptr->Class_index * 8 + memory_address);
+        fprintf(targetfile, "MOV R%d,%d\n", r1, cptr->Class_index * 8 + memory_address);
+        pos++;
+        return r1;
+    }
 }
 int evaluate(struct tnode *t)
 {
@@ -1485,6 +1565,16 @@ int arguementcheck2(struct parameter *parameter1, struct symboltable *symboltabl
     }
     return 0;
 }
+int is_parent(struct Classtable *left, struct Classtable *right)
+{
+    while (right)
+    {
+        if (strcmp(right->Name, left->Name) == 0)
+            return 1;
+        right = right->Parentptr;
+    }
+    return 0;
+}
 
 void help_viewtypetable()
 {
@@ -1500,7 +1590,7 @@ void help_viewtypetable()
             printf("\n     fields : \n");
             while (temp_field)
             {
-                printf("         %s index %d \n", TABLE->fields->name, TABLE->fields->fieldIndex);
+                printf("         %s index %d \n", temp_field->name, temp_field->fieldIndex);
                 temp_field = temp_field->next;
             }
         }
@@ -1528,7 +1618,7 @@ void help_viewclasstable()
         printf("\n      Methods \n");
         while (method_temp)
         {
-            printf("    %s %s  label %d position %d\n", method_temp->Type->name, method_temp->Name, method_temp->Flabel, method_temp->Funcposition);
+            // printf("    %s %s  label %d position %d\n", method_temp->Type->name, method_temp->Name, method_temp->Flabel, method_temp->Funcposition);
             method_temp = method_temp->Next;
         }
 
@@ -1712,6 +1802,7 @@ void Class_Minstall(struct Classtable *cptr, char *name, char *type, struct para
         if (cptr->Parentptr)
         {
             temp2 = cptr->Parentptr->Vfuncptr;
+            temp1 = cptr->Vfuncptr;
             position = temp2->Funcposition;
 
             while (temp2)
@@ -1719,19 +1810,25 @@ void Class_Minstall(struct Classtable *cptr, char *name, char *type, struct para
                 //printf("%s name %s Name \n", name, temp2->Name);
                 if (strcmp(temp2->Name, name) == 0)
                 {
-                    // printf("flag");
+                    // printf("name %s label %d", name, temp->Flabel);
                     flag = 1;
                     break;
                 }
                 position = temp2->Funcposition;
-                temp_prev = temp2;
+                temp_prev = temp1;
                 temp2 = temp2->Next;
+                temp1 = temp1->Next;
             }
         }
         if (flag)
         {
-            temp->Funcposition = temp2->Funcposition;
-            temp->Next = temp2->Next;
+            temp->Funcposition = temp1->Funcposition;
+            if (temp2->Next)
+                temp->Next = temp1->Next;
+            else
+            {
+                temp->Next = NULL;
+            }
         }
         else
         {
@@ -1754,12 +1851,22 @@ void Class_Minstall(struct Classtable *cptr, char *name, char *type, struct para
             cptr->Vfuncptr = temp;
         }
     }
+    // printf("name %s label %d", temp->Name, temp->Flabel);
     cptr->Methodcount++;
     if (cptr->Methodcount > 8)
     {
         printf("CERROR method count : %s", cptr->Name);
         exit(0);
     }
+    printf("\n--------------------\n");
+    struct parameter *temp_p = Paramlist;
+    printf("current function %s", temp->Name);
+    while (temp_p)
+    {
+        printf("para %s\n", temp_p->name);
+        temp_p = temp_p->prev;
+    }
+    printf("\n_----------------\n");
 }
 void Class_Finstall(struct Classtable *cptr, char *typename, char *name)
 {
@@ -1835,6 +1942,11 @@ void declaration_typeupdate(char *type, struct symboltable *table)
     struct symboltable *temptable = table;
     while (temptable)
     {
+        if (CLookup(type))
+        {
+            temptable->size = 2;
+            // printf("class");
+        }
         temptable->type = strdup(type);
         temptable = temptable->prev;
     }
@@ -1920,10 +2032,10 @@ void create_virtual_class_table(FILE *targetfile)
     struct Classtable *temp_class = CLASS_TABLE;
     struct Memberfunclist *temp_fuclist;
     int temp_mem;
+    temp_mem = memory_address;
     while (temp_class)
     {
         temp_fuclist = temp_class->Vfuncptr;
-        temp_mem = memlocation;
         while (temp_fuclist)
         {
 
@@ -1931,7 +2043,7 @@ void create_virtual_class_table(FILE *targetfile)
             pos++;
             temp_fuclist = temp_fuclist->Next;
         }
-        memlocation = memlocation + 8;
+        temp_mem = temp_mem + 8;
         temp_class = temp_class->Next;
     }
 }

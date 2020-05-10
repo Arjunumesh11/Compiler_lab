@@ -58,7 +58,7 @@
 "null"	{return NULL0;}
 
 [A-Za-z][0-9A-Za-z_]* 	{varname=strdup(yytext);    yylval.name =varname; return VAR;}
-[\"][0-9A-Za-z]+[\"] 	{varname=strdup(yytext);    yylval.no = CreateTree(0,STRE,varname,STRI,NULL,NULL,NULL,NULL); return NUM;}
+[\"][0-9A-Za-z .]+[\"] 	{varname=strdup(yytext);    yylval.no = CreateTree(0,STRE,varname,STRI,NULL,NULL,NULL,NULL); return NUM;}
 [\n] 	{}
 [ \t]	{}
 [()]	{return yytext[0];}

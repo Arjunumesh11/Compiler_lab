@@ -41,6 +41,7 @@ extern int Class_index;
 #define INIT 22
 #define CFUNCALL 23
 #define BREAKP 24
+#define NEW0 25
 
 #define No_labels 100
 #define start_adress 2102
@@ -174,6 +175,7 @@ void help_viewReg(int *Reg);
 void help_addbreak();
 int arguementcheck(struct parameter *parameters, struct tnode *l);
 int arguementcheck2(struct parameter *parameter1, struct symboltable *parameter2);
+int is_parent(struct Classtable *left, struct Classtable *right);
 void help_viewtypetable();
 void help_viewclasstable();
 void create_virtual_class_table(FILE *targetfile); //to create virtual classtabe

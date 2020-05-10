@@ -4,9 +4,11 @@
 	#include "exprtree.h"
 	//#include "exprtree.c"
 	int yylex(void);
+	int memlocation;
 	int labels,r1,decltypeflag, Index=0,size=0;
 	char *type_flag,*name_type,*name,*yytext,*Current_type;
 	FILE *target_file,*yyin,*f;
+	struct tnode *temp1,*temp2;
 	struct symboltable *temp_table,*G_TABLE_temp,*G_TABLE,*temp_paratable,*G_PARATABLE;
 	struct Typetable *temptypetable,*TYPE_TABLE;
     struct Fieldlist *tempfieldlist,*tempfield;
@@ -36,13 +38,13 @@ FuncList     : FuncList FuncBlock	{codeGen($2, target_file, 0);}
 		  
 FuncBlock    : Type VAR '(' Parameters ')' '{' Declarations Body '}'	{$$=CreateTree(0,strdup($1),$2,FUNCDEF,NULL,$4,CreateTree(0,0,NULL,CONNECTOR,NULL,$7,$8,NULL),NULL);}
 		  	 ;
-ClassDefBlock   : CLASS ClassDefList ENDCLASS	{Current_class=NULL; help_viewclasstable();create_virtual_class_table(target_file);}
+ClassDefBlock   : CLASS ClassDefList ENDCLASS	{Current_class=NULL; }
                 |
 				;
-ClassDefList   : ClassDefList ClassDef	
-               | ClassDef
+ClassDefList   : ClassDefList ClassDef	{}
+               | ClassDef				{}
 			   ;
-ClassDef      : Cname '{'DECL Fieldlists MethodDecl ENDDECL MethodDefns '}'
+ClassDef      : Cname '{'DECL Fieldlists MethodDecl ENDDECL MethodDefns '}'	{memlocation=memlocation+8;}
 			  ;
 Cname         : VAR       		{
 									Cptr = CInstall($1,NULL);
@@ -86,7 +88,7 @@ MDecl      : Type VAR '(' Parameters ')' ';' {Class_Minstall(Cptr,$2,$1,V_Parame
 MethodDefns : MethodDefns FDef {codeGen($2, target_file, 0);}
             | FDef			   {codeGen($1, target_file, 0);}
 			;
-FDef		: Type VAR '(' Parameters ')' '{' Declarations Body '}' {$$=CreateTree(0,strdup($1),$2,FUNCDEF,NULL,$4,CreateTree(0,0,NULL,CONNECTOR,NULL,$7,$8,NULL),NULL);}
+FDef		: Type VAR '(' Parameters ')' '{' Declarations Body '}' {$$=CreateTree(0,strdup($1),$2,FUNCDEF,NULL,$4,CreateTree(0,0,NULL,CONNECTOR,NULL,$7,$8,NULL),NULL); V_Parameter=NULL;}
 			;
 GDeclaration : DECL GDeclList ENDDECL { 
 										$$=CreateTree(0,0,NULL,GDECLARATION,NULL,NULL,NULL,G_TABLE);
@@ -167,7 +169,9 @@ Parameters   : ParamList	{
 								$$=CreateTree(0,0,NULL,PDECLARATION,NULL,NULL,NULL,G_PARATABLE);
 								G_PARATABLE=NULL;
 							}
-			 |				{$$=CreateTree(0,0,NULL,PDECLARATION,NULL,NULL,NULL,NULL);}
+			 |				{$$=CreateTree(0,0,NULL,PDECLARATION,NULL,NULL,NULL,NULL);
+                            G_PARATABLE=NULL;
+                            }
 			 ;
 ParamList    : ParamList ',' Param
 							{
@@ -194,9 +198,7 @@ Param		 : Type VAR
 							G_PARATABLE=temp_paratable;
 						}
 			 ;
-Retstmt		 : RETURN NUM ';' 		   {$$ = CreateTree(0,0,NULL,RETURNST,NULL,$2,NULL,NULL);}
-			 | RETURN VAR ';' 		   {$$ = CreateTree(0,0,NULL,RETURNST,NULL,CreateTree(0,INTE,$2,VARIABLE,NULL,NULL,NULL,NULL),NULL,NULL);}	
-			 | RETURN Field ';'		   {$$ = CreateTree(0,0,NULL,RETURNST,NULL,$2,NULL,NULL);}
+Retstmt		 : RETURN expr ';'		   {$$ =CreateTree(0,0,NULL,RETURNST,NULL,$2,NULL,NULL);}
 			 ;
 
 Slist : Slist Stmt   {$$ = CreateTree(0,0,NULL,CONNECTOR,NULL,$1,$2,NULL);}
@@ -261,8 +263,10 @@ AsgStmt : VAR EQUAL expr 	     			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",Cre
 	 	| VAR EQUAL ALLOC '(' ')'			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,NULL,NULL,NULL),CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
 	 	| VAR EQUAL INTIALIZE '(' ')'		 {$$ = CreateTree(0,NULL1,strdup("intialize"),INIT,NULL,NULL,NULL,NULL);}
 	 	| Field EQUAL ALLOC '(' ')'			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",$1,CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
-		| VAR EQUAL NEW '(' VAR ')'			 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,NULL,NULL,NULL),CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
-		| Field EQUAL NEW '(' VAR ')'		 {$$ = CreateTree(0,INTE,NULL,OPERATOR,"=",$1,CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);}
+		| VAR EQUAL NEW '(' VAR ')'			 {
+												temp1=CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,NULL,NULL,NULL),CreateTree(0,NULL1,strdup("alloc"),ALOC,NULL,NULL,NULL,NULL),NULL);
+												temp2=CreateTree(0,INTE,NULL,OPERATOR,"=",CreateTree(0,INTE,$1,VARIABLE,NULL,CreateTree(1,INTE,NULL,NUMBER,NULL,NULL,NULL,NULL),NULL,NULL),CreateTree(0,NULL1,strdup($5),NEW0,NULL,NULL,NULL,NULL),NULL);
+												$$ = CreateTree(0,0,NULL,CONNECTOR,NULL,temp1,temp2,NULL);}
 		;
 
 Ifstmt : IF '(' expr ')' THEN Slist ELSE Slist ENDIF  {$$ =  CreateTree(0,BOLE,NULL,IFST,NULL,$3,CreateTree(0,0,NULL,CONNECTOR,NULL,$6,$8,NULL),NULL);}

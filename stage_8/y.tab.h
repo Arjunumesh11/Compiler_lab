@@ -142,7 +142,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 16 "stage8.y" /* yacc.c:1909  */
+#line 18 "stage8.y" /* yacc.c:1909  */
 
 	char* name;
 	struct tnode *no;

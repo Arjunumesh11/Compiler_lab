@@ -70,14 +70,17 @@
 	decl
 	int n,temp;
 	str name;
-	Person first;
 	Student second;
 	Person arbitrary;
 	enddecl
 	
 	int main(){
 	decl
+	Student second;
+	Person first;
+	
 	enddecl
+	
 	begin
 	n = initialize();
 	first=new(Person);
@@ -88,10 +91,9 @@
 	if (n>0) then
 	arbitrary = first;
 	else
-	arbitrary = second;
+	arbitrary=second;
 	endif;
 	n = arbitrary.printDetails();
 	return 0;
 	end
 	}
-	

@@ -417,8 +417,13 @@ int Lallocatemem(int n, FILE *targetfile)
 {
     int temp = localmem;
     localmem = localmem + n;
-    fprintf(targetfile, " PUSH R19\n");
-    pos++;
+    if (n > 1)
+        printf("var size greater");
+    for (int i = 0; i < n; i++)
+    {
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+    }
     return temp;
 }
 int Pallocatemem(int n)
@@ -504,7 +509,7 @@ void popArgument(struct parameter *paramlist, FILE *targetfile)
 }
 int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 = return address
 {
-    int r1, r2, r3;
+    int r1, r2, r3, r4;
     if (t == NULL)
     {
         return 0;
@@ -726,7 +731,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
     if (t->nodetype == POWER)
     {
         int l = 0;
-        char name[2];
+        char name[6];
         r2 = getReg(REG_COUNTER->Reg);
         r1 = codeGen(t->left, targetfile, 1);
 
@@ -815,29 +820,70 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         if ((Symbol_Temp = LLookup(t->varname)) || (Symbol_Temp = PLookup(t->varname)))
         {
 
-            if (option == 1)
+            if (t->left == NULL)
             {
-                r1 = Symbol_Temp->binding;
-                r2 = getReg(REG_COUNTER->Reg);
-                r3 = getReg(REG_COUNTER->Reg);
-                fprintf(targetfile, " MOV R%d,BP\n", r3);
-                pos++;
-                fprintf(targetfile, " ADD R%d,%d\n", r3, r1);
-                pos++;
-                fprintf(targetfile, " MOV R%d,[R%d]\n", r2, r3);
-                pos++;
-                freeReg(REG_COUNTER->Reg);
-                return r2;
+                if (option == 1)
+                {
+                    r1 = Symbol_Temp->binding;
+                    r2 = getReg(REG_COUNTER->Reg);
+                    r3 = getReg(REG_COUNTER->Reg);
+                    fprintf(targetfile, " MOV R%d,BP\n", r3);
+                    pos++;
+                    fprintf(targetfile, " ADD R%d,%d\n", r3, r1);
+                    pos++;
+                    fprintf(targetfile, " MOV R%d,[R%d]\n", r2, r3);
+                    pos++;
+                    freeReg(REG_COUNTER->Reg);
+                    return r2;
+                }
+                if (option == 0)
+                {
+                    r1 = Symbol_Temp->binding;
+                    r2 = getReg(REG_COUNTER->Reg);
+                    fprintf(targetfile, " MOV R%d,BP\n", r2);
+                    pos++;
+                    fprintf(targetfile, " ADD R%d,%d\n", r2, r1);
+                    pos++;
+                    return r2;
+                }
             }
-            if (option == 0)
+            else
             {
-                r1 = Symbol_Temp->binding;
-                r2 = getReg(REG_COUNTER->Reg);
-                fprintf(targetfile, " MOV R%d,BP\n", r2);
-                pos++;
-                fprintf(targetfile, " ADD R%d,%d\n", r2, r1);
-                pos++;
-                return r2;
+                printf("not null");
+                int size = t->left->val;
+                if (option == 1)
+                {
+                    r1 = Symbol_Temp->binding;
+                    r2 = getReg(REG_COUNTER->Reg);
+                    r3 = getReg(REG_COUNTER->Reg);
+                    r4 = codeGen(t->left, targetfile, 1);
+                    fprintf(targetfile, " MOV R%d,BP\n", r3);
+                    pos++;
+                    fprintf(targetfile, " ADD R%d,%d\n", r3, r4);
+                    pos++;
+                    fprintf(targetfile, " ADD R%d,%d\n", r3, r1);
+                    pos++;
+                    fprintf(targetfile, " MOV R%d,[R%d]\n", r2, r3);
+                    pos++;
+                    freeReg(REG_COUNTER->Reg);
+                    freeReg(REG_COUNTER->Reg);
+                    return r2;
+                }
+                if (option == 0)
+                {
+                    r1 = Symbol_Temp->binding;
+                    r2 = getReg(REG_COUNTER->Reg);
+                    r4 = codeGen(t->left, targetfile, 1);
+                    fprintf(targetfile, " MOV R%d,BP\n", r2);
+                    pos++;
+                    fprintf(targetfile, " ADD R%d,%d\n", r3, r4);
+                    pos++;
+                    fprintf(targetfile, " ADD R%d,%d\n", r2, r1);
+                    pos++;
+                    freeReg(REG_COUNTER->Reg);
+
+                    return r2;
+                }
             }
         }
 
@@ -904,7 +950,7 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
     if (t->nodetype == IFST)
     {
         int l_if = 0, l_end = 0;
-        char name[2];
+        char name[6];
         l_if = getlabel();
         l_end = getlabel(); //L_END:
         r1 = codeGen(t->left, targetfile, 1);
@@ -938,12 +984,12 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         LOOP_COUNTER_HEAD->prev = LOOP_COUNTER_TEMP;
 
         int l_while = 0, l_end = 0;                           //WHILE AND END LABEL
-        char name[2];                                         //L_WHILE:
+        char name[6];                                         //L_WHILE:
         l_while = getlabel();                                 //CONDI
         l_end = getlabel();                                   //JZ L_END
         fprintf(targetfile, "L%d:\n", l_while);               //SLIST
         LabelTable[l_while].address = pos * 2 + start_adress; //JMP L_WHILE
-        snprintf(name, 5, "L%d", l_while);
+        snprintf(name, 6, "L%d", l_while);
         strcpy(LOOP_COUNTER_HEAD->continue_label, name); //L_END:
         strcpy(LabelTable[l_while].name, name);
         fwrite(&LabelTable[l_while], sizeof(struct labeltable), 1, label_file);
@@ -1337,6 +1383,40 @@ int codeGen(struct tnode *t, FILE *targetfile, int option) //option 1 = value 0 
         popReg(reg_temp, targetfile);
 
         return r2;
+    }
+    if (t->nodetype == DEALOC)
+    {
+        memcpy(reg_temp, REG_COUNTER->Reg, sizeof(int) * 20);
+        pushReg(reg_temp, targetfile);
+        r2 = codeGen(t->left, targetfile, 1);
+        fprintf(targetfile, " MOV R19,\"Alloc\"\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R%d\n", r2);
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " PUSH R19\n");
+        pos++;
+        fprintf(targetfile, " CALL 0\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        fprintf(targetfile, " POP R19\n");
+        pos++;
+        freeReg(REG_COUNTER->Reg);
+        popReg(reg_temp, targetfile);
+
+        return 0;
     }
     if (t->nodetype == INIT)
     {

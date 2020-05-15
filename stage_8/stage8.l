@@ -35,6 +35,7 @@
 "type"		{return TYPE;}
 "endtype"	{return ENDTYPE;}
 "alloc"		{return ALLOC;}
+"dealloc"	{return DEALLOC;}
 "initialize"	{return INTIALIZE;}
 "class"		{return CLASS;}
 "endclass"	{return ENDCLASS;}

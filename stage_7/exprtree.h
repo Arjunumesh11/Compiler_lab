@@ -40,6 +40,7 @@ extern int declflag, decltypeflag;
 #define INIT 22
 #define CFUNCALL 23
 #define BREAKP 24
+#define DEALOC 25
 
 #define No_labels 100
 #define start_adress 2102

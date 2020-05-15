@@ -42,6 +42,7 @@ extern int Class_index;
 #define CFUNCALL 23
 #define BREAKP 24
 #define NEW0 25
+#define DEALOC 26
 
 #define No_labels 100
 #define start_adress 2102
